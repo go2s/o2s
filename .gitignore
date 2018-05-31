@@ -1,0 +1,39 @@
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
+*.swp
+
+.idea
+
+oauth2server
+o2s
+o2s.zip
+
+http/o2s
+gin/o2s
+
+lambda/o2s
+lambda/o2s.zip
+lambda/login.html
+lambda/auth.html
