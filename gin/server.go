@@ -1,6 +1,6 @@
 // authors: wangoo
 // created: 2018-05-30
-// gin oauth2 server
+// gin oauth2 server using redis store
 
 package main
 

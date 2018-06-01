@@ -7,9 +7,8 @@ package o2
 import (
 	"net/http"
 	"gopkg.in/session.v2"
-	"fmt"
-	"net/url"
 	"context"
+	"log"
 )
 
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,29 +17,24 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	q := authQuery(r)
 	uid, _ := store.Get(SessionUserID)
 	if uid == nil {
-		w.Header().Set("Location", oauth2UriFormatter.FormatRedirectUri(Oauth2UriLogin))
+		loc := oauth2UriFormatter.FormatRedirectUri(Oauth2UriLogin) + "?" + q
+		w.Header().Set("Location", loc)
 		w.WriteHeader(http.StatusFound)
 		return
 	}
 
 	if r.Method == "POST" {
-		param, _ := store.Get(SessionAuthorizeParameters)
-		if param == nil {
-			http.Error(w, "can get authorize parameters", http.StatusInternalServerError)
-			return
-		}
-		u := new(url.URL)
-		u.Path = Oauth2UriAuthorize
-		u.RawQuery = param.(string)
-		w.Header().Set("Location", oauth2UriFormatter.FormatRedirectUri(u.String()))
+		loc := oauth2UriFormatter.FormatRedirectUri(Oauth2UriAuthorize) + "?" + q
+		w.Header().Set("Location", loc)
+
 		w.WriteHeader(http.StatusFound)
-		store.Delete(SessionAuthorizeParameters)
+		store.Delete(SessionAuthParam)
 		err = store.Save()
 		if err != nil {
-			fmt.Fprint(w, err)
-			return
+			log.Printf("failed remove authorize parameters:%v\n", err)
 		}
 		return
 	}

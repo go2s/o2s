@@ -13,10 +13,13 @@ import (
 	"github.com/go2s/o2s/o2"
 	"github.com/go2s/o2m"
 	"gopkg.in/mgo.v2"
+	"flag"
+	"log"
 )
 
 var (
 	initialized = false
+	lambdaMode  = true
 	ginLambda   *ginadapter.GinLambda
 )
 
@@ -24,14 +27,17 @@ type UriRedirector struct {
 }
 
 func (u *UriRedirector) FormatRedirectUri(uri string) string {
-	return "/" + LambdaStaging + uri
+	if lambdaMode {
+		return "/" + LambdaStaging + uri
+	}
+	return uri
 }
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, auth, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
 
 		if c.Request.Method == "OPTIONS" {
@@ -57,11 +63,11 @@ func handleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	return response, err
 }
 
-var mgoCfg mongo.MongoConfig
+var mgoCfg o2m.MongoConfig
 var mgoSession *mgo.Session
 
 func main() {
-	mgoCfg = mongo.MongoConfig{
+	mgoCfg = o2m.MongoConfig{
 		Addrs:     mgoAddrs,
 		Database:  mgoDatabase,
 		Username:  mgoUsername,
@@ -69,17 +75,27 @@ func main() {
 		PoolLimit: mgoPoolLimit,
 	}
 
-	mgoSession = mongo.NewMongoSession(&mgoCfg)
+	mgoSession = o2m.NewMongoSession(&mgoCfg)
 
-	ts := mongo.NewTokenStore(mgoSession)
+	ts := o2m.NewTokenStore(mgoSession, mgoDatabase, "token")
 
-	cs := mongo.NewClientStore(mgoSession, "oauth2", "client")
+	cs := o2m.NewClientStore(mgoSession, mgoDatabase, "client")
 
-	us := mongo.NewUserStore(mgoSession, "oauth2", "user")
+	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user")
 
 	o2.InitOauth2Server(cs, ts, us, &UriRedirector{})
 
 	initSession()
 
-	lambda.Start(handleRequest)
+	flag.BoolVar(&lambdaMode, "lambda", true, "lambda mode enable")
+	flag.Parse()
+
+	if lambdaMode {
+		log.Println("lambda mode oauth2 server")
+		lambda.Start(handleRequest)
+	} else {
+		log.Println("gin mode oauth2 server")
+		e := engine.NewEngine()
+		e.Run(":9096")
+	}
 }

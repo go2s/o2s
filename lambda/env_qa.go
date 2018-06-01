@@ -9,7 +9,7 @@ package main
 const (
 	LambdaStaging   = "qa"
 
-	rdsAddr     = "127.0.0.1:6379"
+	rdsAddr     = "sop-redis-for-dev.4qisdv.0001.cnn1.cache.amazonaws.com.cn:6379"
 	rdsPassword = ""
 
 	mgoDatabase  = "oauth2"

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TokenConfig(manager *manage.Manager) {
+func DefaultTokenConfig(manager *manage.Manager) {
 	// ------------------------------
 	// SetImplicitTokenCfg set the implicit grant token config
 	cfg := &manage.Config{

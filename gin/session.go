@@ -1,6 +1,6 @@
 // authors: wangoo
 // created: 2018-05-31
-// TODO add description about this file
+// oauth2 server base on gin
 
 package main
 

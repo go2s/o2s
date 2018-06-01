@@ -6,25 +6,21 @@ package o2
 
 import (
 	"net/http"
+	"errors"
 	"gopkg.in/session.v2"
 	"context"
-	"errors"
 )
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
 	store, err := session.Start(context.Background(), w, r)
+	if err != nil {
+		return
+	}
 	uid, _ := store.Get(SessionUserID)
 	if uid == nil {
-		if r.Form == nil {
-			r.ParseForm()
-		}
-		f := r.Form
-		store.Set(SessionAuthorizeParameters, f.Encode())
-		err = store.Save()
-		if err != nil {
-			return
-		}
-		w.Header().Set("Location", oauth2UriFormatter.FormatRedirectUri(Oauth2UriLogin))
+		q := authQuery(r)
+		loc := oauth2UriFormatter.FormatRedirectUri(Oauth2UriLogin) + "?" + q
+		w.Header().Set("Location", loc)
 		w.WriteHeader(http.StatusFound)
 		return
 	}

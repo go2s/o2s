@@ -58,8 +58,7 @@ build-prod:
 .PHONY: build
 
 zip:
-#	sed  's#/oauth2/login#/qa/oauth2/login#g' ../login.html > login.html
-#	sed  's#/oauth2/auth#/qa/oauth2/auth#g' ../auth.html > auth.html
+	$(RM) $(PACKAGE).zip
 	zip $(PACKAGE).zip $(HANDLER) ../*.html
 
 .PHONY: pack

@@ -14,16 +14,48 @@ import (
 
 	"encoding/json"
 	"github.com/go2s/o2x"
+	"gopkg.in/session.v2"
+	"context"
 )
 
+// ---------------------------
 var oauth2Svr *server.Server
 var oauth2Mgr *manage.Manager
 
+// expose for custom configuration
+func GetOauth2Svr() *server.Server {
+	return oauth2Svr
+}
+
+// expose for custom configuration
+func GetOauth2Mgr() *manage.Manager {
+	return oauth2Mgr
+}
+
+// ---------------------------
 var oauth2ClientStore oauth2.ClientStore
 var oauth2TokenStore oauth2.TokenStore
 var oauth2UserStore o2x.UserStore
 var oauth2UriFormatter o2x.UriFormatter
 
+// ---------------------------
+// whether the token store support account management
+var o2xTokenAccountSupport = false
+var o2xTokenStore o2x.Oauth2TokenStore
+
+// ---------------------------
+// enable to create multiple token for one user of a client
+var multipleUserTokenEnable = false
+
+func EnableMultipleUserToken() {
+	multipleUserTokenEnable = true
+}
+
+func DisableMultipleUserToken() {
+	multipleUserTokenEnable = false
+}
+
+// ---------------------------
 type DefaultUriFormatter struct {
 }
 
@@ -32,6 +64,10 @@ func (u *DefaultUriFormatter) FormatRedirectUri(uri string) string {
 }
 
 func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserStore, formatter o2x.UriFormatter) {
+	if cs == nil || ts == nil || us == nil {
+		panic("store is nil")
+	}
+
 	oauth2ClientStore = cs
 	oauth2TokenStore = ts
 	oauth2UserStore = us
@@ -41,12 +77,14 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 		oauth2UriFormatter = &DefaultUriFormatter{}
 	}
 
+	o2xTokenStore, o2xTokenAccountSupport = ts.(o2x.Oauth2TokenStore)
+
 	manager := manage.NewDefaultManager()
 
 	manager.MustTokenStorage(ts, nil)
 	manager.MustClientStorage(cs, nil)
 
-	TokenConfig(manager)
+	DefaultTokenConfig(manager)
 
 	oauth2Svr = server.NewServer(&server.Config{
 		TokenType:            "Bearer",
@@ -73,7 +111,6 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	oauth2Svr.SetResponseErrorHandler(func(re *errors.Response) {
 		log.Println("Response Error:", re.Error.Error())
 	})
-
 }
 
 func TokenRequestHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,10 +118,36 @@ func TokenRequestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AuthorizeRequestHandler(w http.ResponseWriter, r *http.Request) {
+	if !multipleUserTokenEnable && o2xTokenAccountSupport && o2xTokenStore != nil {
+		responseType := r.FormValue("response_type")
+		if responseType == "token" {
+			removeAuthToken(w, r)
+		}
+	}
+
 	err := oauth2Svr.HandleAuthorizeRequest(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+}
+
+func removeAuthToken(w http.ResponseWriter, r *http.Request) {
+	clientID := r.FormValue("client_id")
+	if clientID == "" {
+		return
+	}
+	store, err := session.Start(context.Background(), w, r)
+	if err != nil {
+		return
+	}
+	u, _ := store.Get(SessionUserID)
+	if u == nil {
+		return
+	}
+	userID := u.(string)
+
+	// log.Printf("remove old token for client %v user %v\n", clientID, userID)
+	o2xTokenStore.RemoveByAccount(userID, clientID)
 }
 
 func BearerTokenValidator(w http.ResponseWriter, r *http.Request) {

@@ -5,28 +5,32 @@
 package main
 
 import (
-	"time"
 	"gopkg.in/session.v2"
+	"gopkg.in/go-session/redis.v1"
+	"time"
 )
 
 func initSession() {
 	// github.com/go-session/redis
-	//rdsOpt = redis.Options{
-	//	Addr:     rdsAddr,
-	//	Password: rdsPassword,
-	//}
-	//session.InitManager(
-	//	session.SetCookieName("session_id"),
-	//	session.SetSign([]byte("sign")),
-	//	session.SetStore(redis.NewRedisStore(&rdsOpt)),
-	//)
-
-	// memory session
-	expSeconds := int((time.Minute * 30).Seconds())
+	rdsOpt := redis.Options{
+		Addr:     rdsAddr,
+		Password: rdsPassword,
+	}
+	expSeconds := int((time.Minute * 1).Seconds())
 	session.InitManager(
-		session.SetCookieName("session_id"),
+		session.SetCookieName("o2s_id"),
 		session.SetSign([]byte("sign")),
+		session.SetStore(redis.NewRedisStore(&rdsOpt)),
 		session.SetCookieLifeTime(expSeconds),
 		session.SetExpired(int64(expSeconds)),
 	)
+
+	// memory session
+	//expSeconds := int((time.Minute * 30).Seconds())
+	//session.InitManager(
+	//	session.SetCookieName("o2s_id"),
+	//	session.SetSign([]byte("sign")),
+	//	session.SetCookieLifeTime(expSeconds),
+	//	session.SetExpired(int64(expSeconds)),
+	//)
 }

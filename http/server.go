@@ -1,6 +1,6 @@
 // authors: wangoo
 // created: 2018-05-30
-// http server
+// oauth2 http server using memory store
 
 package main
 
@@ -41,7 +41,7 @@ func main() {
 }
 
 func DemoClient(cs o2x.Oauth2ClientStore) {
-	err := cs.Set("000000", &mongo.Oauth2Client{
+	err := cs.Set("000000", &o2m.Oauth2Client{
 		ID:     "000000",
 		Secret: "999999",
 		Domain: "https://localhost",

@@ -5,8 +5,8 @@
 package o2
 
 const (
-	SessionAuthorizeParameters = "authorize_parameters"
-	SessionUserID              = "UserID"
+	SessionAuthParam = "AuthParam"
+	SessionUserID    = "UserID"
 
 	Oauth2UriLogin     = "/oauth2/login"
 	Oauth2UriAuth      = "/oauth2/auth"
