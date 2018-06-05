@@ -21,6 +21,8 @@ import (
 // ---------------------------
 var oauth2Svr *server.Server
 var oauth2Mgr *manage.Manager
+var oauth2Cfg *ServerConfig
+var defaultOauth2Cfg *ServerConfig
 
 // expose for custom configuration
 func GetOauth2Svr() *server.Server {
@@ -36,7 +38,7 @@ func GetOauth2Mgr() *manage.Manager {
 var oauth2ClientStore oauth2.ClientStore
 var oauth2TokenStore oauth2.TokenStore
 var oauth2UserStore o2x.UserStore
-var oauth2UriFormatter o2x.UriFormatter
+var oauth2AuthStore o2x.AuthStore
 
 // ---------------------------
 // whether the token store support account management
@@ -56,14 +58,30 @@ func DisableMultipleUserToken() {
 }
 
 // ---------------------------
-type DefaultUriFormatter struct {
+
+func DefaultOauth2Config() *ServerConfig {
+	if defaultOauth2Cfg == nil {
+		defaultOauth2Cfg = &ServerConfig{
+			TemplatePrefix: "../template/",
+			ServerName:     "Oauth2 Server",
+			Logo:           "https://oauth.net/images/oauth-2-sm.png",
+			Favicon:        "https://oauth.net/images/oauth-logo-square.png",
+		}
+	}
+	return defaultOauth2Cfg
 }
 
-func (u *DefaultUriFormatter) FormatRedirectUri(uri string) string {
+// ---------------------------
+
+func FormatRedirectUri(uri string) string {
+	if oauth2Cfg.UriPrefix != "" {
+		return oauth2Cfg.UriPrefix + uri
+	}
 	return uri
 }
 
-func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserStore, formatter o2x.UriFormatter) {
+// ---------------------------
+func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserStore, as o2x.AuthStore, cfg *ServerConfig) {
 	if cs == nil || ts == nil || us == nil {
 		panic("store is nil")
 	}
@@ -71,11 +89,18 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	oauth2ClientStore = cs
 	oauth2TokenStore = ts
 	oauth2UserStore = us
-	oauth2UriFormatter = formatter
+	oauth2AuthStore = as
 
-	if oauth2UriFormatter == nil {
-		oauth2UriFormatter = &DefaultUriFormatter{}
+	if oauth2AuthStore == nil {
+		oauth2AuthStore = o2x.NewAuthStore()
 	}
+
+	if cfg != nil {
+		oauth2Cfg = cfg
+	} else {
+		oauth2Cfg = DefaultOauth2Config()
+	}
+	InitTemplate()
 
 	o2xTokenStore, o2xTokenAccountSupport = ts.(o2x.Oauth2TokenStore)
 
@@ -111,28 +136,57 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	oauth2Svr.SetResponseErrorHandler(func(re *errors.Response) {
 		log.Println("Response Error:", re.Error.Error())
 	})
+
 }
 
 func TokenRequestHandler(w http.ResponseWriter, r *http.Request) {
 	oauth2Svr.HandleTokenRequest(w, r)
 }
 
+func CheckUserAuth(w http.ResponseWriter, r *http.Request) (authorized bool, err error) {
+	userID, err := oauth2Svr.UserAuthorizationHandler(w, r)
+	if err != nil {
+		return
+	} else if userID == "" {
+		return false, nil
+	}
+
+	clientID := clientID(r)
+	scope := scope(r)
+
+	if clientID != "" && scope != "" {
+		authorized = oauth2AuthStore.Exist(&o2x.AuthModel{
+			ClientID: clientID,
+			UserID:   userID,
+			Scope:    scope,
+		})
+		return
+	}
+	return false, nil
+}
+
 func AuthorizeRequestHandler(w http.ResponseWriter, r *http.Request) {
+	authorized, err := CheckUserAuth(w, r)
+	if err != nil || !authorized {
+		redirectToAuth(w, r)
+		return
+	}
+
 	if !multipleUserTokenEnable && o2xTokenAccountSupport && o2xTokenStore != nil {
-		responseType := r.FormValue("response_type")
+		responseType := responseType(r)
 		if responseType == "token" {
 			removeAuthToken(w, r)
 		}
 	}
 
-	err := oauth2Svr.HandleAuthorizeRequest(w, r)
+	err = oauth2Svr.HandleAuthorizeRequest(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
 func removeAuthToken(w http.ResponseWriter, r *http.Request) {
-	clientID := r.FormValue("client_id")
+	clientID := clientID(r)
 	if clientID == "" {
 		return
 	}
@@ -146,7 +200,6 @@ func removeAuthToken(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := u.(string)
 
-	// log.Printf("remove old token for client %v user %v\n", clientID, userID)
 	o2xTokenStore.RemoveByAccount(userID, clientID)
 }
 
@@ -156,7 +209,14 @@ func BearerTokenValidator(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	body, err := json.Marshal(tg)
+
+	data := &o2x.ValidResponse{
+		ClientID: tg.GetClientID(),
+		UserID:   tg.GetUserID(),
+		Scope:    tg.GetScope(),
+	}
+
+	body, err := json.Marshal(data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return

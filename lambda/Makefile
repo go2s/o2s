@@ -59,7 +59,9 @@ build-prod:
 
 zip:
 	$(RM) $(PACKAGE).zip
-	zip $(PACKAGE).zip $(HANDLER) ../*.html
+	cp ../template/*.html .
+	zip $(PACKAGE).zip $(HANDLER) *.html
+	$(RM) *.html
 
 .PHONY: pack
 

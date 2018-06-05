@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"gopkg.in/session.v2"
 	"context"
-	"log"
+	"github.com/go2s/o2x"
 )
 
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,26 +17,37 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	q := authQuery(r)
 	uid, _ := store.Get(SessionUserID)
 	if uid == nil {
-		loc := oauth2UriFormatter.FormatRedirectUri(Oauth2UriLogin) + "?" + q
-		w.Header().Set("Location", loc)
-		w.WriteHeader(http.StatusFound)
+		redirectToLogin(w, r)
+		return
+	}
+
+	clientID := clientID(r)
+	scope := scope(r)
+
+	auth := &o2x.AuthModel{
+		ClientID: clientID,
+		UserID:   uid.(string),
+		Scope:    scope,
+	}
+	exists := oauth2AuthStore.Exist(auth)
+	if exists {
+		redirectToAuthorize(w, r)
 		return
 	}
 
 	if r.Method == "POST" {
-		loc := oauth2UriFormatter.FormatRedirectUri(Oauth2UriAuthorize) + "?" + q
-		w.Header().Set("Location", loc)
-
-		w.WriteHeader(http.StatusFound)
-		store.Delete(SessionAuthParam)
-		err = store.Save()
-		if err != nil {
-			log.Printf("failed remove authorize parameters:%v\n", err)
-		}
+		oauth2AuthStore.Save(auth)
+		redirectToAuthorize(w, r)
 		return
 	}
-	outputHTML(w, r, "auth.html")
+
+	m := map[string]interface{}{
+		"cfg":    oauth2Cfg,
+		"client": clientID,
+		"scope":  scope,
+	}
+
+	execAuthTemplate(w, r, m)
 }

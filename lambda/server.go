@@ -23,16 +23,6 @@ var (
 	ginLambda   *ginadapter.GinLambda
 )
 
-type UriRedirector struct {
-}
-
-func (u *UriRedirector) FormatRedirectUri(uri string) string {
-	if lambdaMode {
-		return "/" + LambdaStaging + uri
-	}
-	return uri
-}
-
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -83,7 +73,13 @@ func main() {
 
 	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user")
 
-	o2.InitOauth2Server(cs, ts, us, &UriRedirector{})
+	as := o2m.NewAuthStore(mgoSession, mgoDatabase, "auth")
+
+	cfg := o2.DefaultOauth2Config()
+	cfg.ServerName = "Test Mongodb Oauth2 Server"
+	cfg.TemplatePrefix = "./"
+
+	o2.InitOauth2Server(cs, ts, us, as, nil)
 
 	initSession()
 

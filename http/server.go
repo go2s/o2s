@@ -30,14 +30,17 @@ func main() {
 	}
 	cs := store.NewClientStore()
 	us := o2x.NewUserStore()
+	as := o2x.NewAuthStore()
 
-	o2.InitOauth2Server(cs, ts, us, nil)
+	cfg := o2.DefaultOauth2Config()
+	cfg.ServerName = "Test Memory Oauth2 Server"
+	o2.InitOauth2Server(cs, ts, us, as, cfg)
 
 	DemoClient(cs)
 	DemoUser(us)
 
-	log.Fatal(http.ListenAndServe(Oauth2ListenAddr, nil))
 	log.Println("oauth2 server start on ", Oauth2ListenAddr)
+	log.Fatal(http.ListenAndServe(Oauth2ListenAddr, nil))
 }
 
 func DemoClient(cs o2x.Oauth2ClientStore) {

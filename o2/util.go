@@ -6,31 +6,66 @@ package o2
 
 import (
 	"net/http"
-	"os"
 	"fmt"
 	"net/url"
 )
 
-func outputHTML(w http.ResponseWriter, req *http.Request, filename string) {
-	file, err := os.Open(filename)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	defer file.Close()
-	fi, _ := file.Stat()
-	http.ServeContent(w, req, file.Name(), fi.ModTime(), file)
-}
-
 func authQuery(r *http.Request) (q string) {
-	redirectUri := r.FormValue("redirect_uri")
+	redirectUri := redirectUri(r)
 	if redirectUri != "" {
 		redirectUri = url.QueryEscape(redirectUri)
 	}
-	clientID := r.FormValue("client_id")
-	responseType := r.FormValue("response_type")
-	state := r.FormValue("state")
-	scope := r.FormValue("scope")
+	clientID := clientID(r)
+	responseType := responseType(r)
+	state := state(r)
+	scope := scope(r)
 
 	return fmt.Sprintf("redirect_uri=%v&client_id=%v&response_type=%v&state=%v&scope=%v", redirectUri, clientID, responseType, state, scope)
+}
+
+func redirectToLogin(w http.ResponseWriter, r *http.Request) {
+	redirectToUri(w, r, Oauth2UriLogin)
+}
+
+func redirectToAuth(w http.ResponseWriter, r *http.Request) {
+	redirectToUri(w, r, Oauth2UriAuth)
+}
+
+func redirectToAuthorize(w http.ResponseWriter, r *http.Request) {
+	redirectToUri(w, r, Oauth2UriAuthorize)
+}
+
+func redirectToUri(w http.ResponseWriter, r *http.Request, uri string) {
+	q := authQuery(r)
+	loc := FormatRedirectUri(uri) + "?" + q
+	w.Header().Set("Location", loc)
+	w.WriteHeader(http.StatusFound)
+}
+
+func redirectUri(r *http.Request) string {
+	return r.FormValue("redirect_uri")
+}
+
+func clientID(r *http.Request) string {
+	return r.FormValue("client_id")
+}
+
+func state(r *http.Request) string {
+	return r.FormValue("state")
+}
+
+func scope(r *http.Request) string {
+	return r.FormValue("scope")
+}
+
+func responseType(r *http.Request) string {
+	return r.FormValue("response_type")
+}
+
+func username(r *http.Request) string {
+	return r.FormValue("username")
+}
+
+func password(r *http.Request) string {
+	return r.FormValue("password")
 }

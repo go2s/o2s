@@ -18,10 +18,6 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	}
 	uid, _ := store.Get(SessionUserID)
 	if uid == nil {
-		q := authQuery(r)
-		loc := oauth2UriFormatter.FormatRedirectUri(Oauth2UriLogin) + "?" + q
-		w.Header().Set("Location", loc)
-		w.WriteHeader(http.StatusFound)
 		return
 	}
 

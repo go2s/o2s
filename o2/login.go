@@ -7,7 +7,6 @@ package o2
 import (
 	"net/http"
 	"gopkg.in/session.v2"
-	"fmt"
 	"context"
 	"log"
 )
@@ -18,19 +17,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	if r.Method == "POST" {
-		username := r.FormValue("username")
-		password := r.FormValue("password")
+		username := username(r)
+		password := password(r)
 
 		if username == "" || password == "" {
-			http.Error(w, "username and password required", http.StatusInternalServerError)
+			showLogin(w, r, "username and password required")
 			return
 		}
-		log.Printf("login request username: %v\n", username)
 
 		userID, err := PasswordAuthorizationHandler(username, password)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			showLogin(w, r, err.Error())
 			return
 		}
 
@@ -38,17 +37,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		err = store.Save()
 		if err != nil {
 			log.Printf("login failed: %v\n", err)
-			fmt.Fprint(w, err)
+			showLogin(w, r, err.Error())
 			return
 		}
 		log.Printf("login success userID: %v\n", userID)
 
-		q := authQuery(r)
-
-		loc := oauth2UriFormatter.FormatRedirectUri(Oauth2UriAuth) + "?" + q
-		w.Header().Set("Location", loc)
-		w.WriteHeader(http.StatusFound)
+		redirectToAuth(w, r)
 		return
 	}
-	outputHTML(w, r, "login.html")
+
+	showLogin(w, r, "")
+}
+
+func showLogin(w http.ResponseWriter, r *http.Request, err string) {
+	m := map[string]interface{}{
+		"cfg":   oauth2Cfg,
+		"error": err,
+	}
+	execLoginTemplate(w, r, m)
 }

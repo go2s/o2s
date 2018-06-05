@@ -5,7 +5,6 @@
 package o2
 
 const (
-	SessionAuthParam = "AuthParam"
 	SessionUserID    = "UserID"
 
 	Oauth2UriLogin     = "/oauth2/login"

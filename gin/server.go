@@ -37,8 +37,9 @@ func main() {
 		panic(err)
 	}
 	us := o2x.NewUserStore()
+	as := o2x.NewAuthStore()
 
-	o2.InitOauth2Server(cs, ts, us, nil)
+	o2.InitOauth2Server(cs, ts, us, as, nil)
 
 	engine.Run(Oauth2ListenAddr)
 	log.Println("oauth2 server start on ", Oauth2ListenAddr)

@@ -1,0 +1,17 @@
+{{ define "content" }}
+<div class="jumbotron">
+    <form method="POST">
+        <h1>Authorize</h1>
+        <p>The client
+            <b>{{ .client}}</b> would like to perform actions on your behalf.</p>
+        <p class=".text-center">
+        <h3>{{ .scope}}</h3></p>
+        <p>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:200px;">Allow</button>
+        </p>
+    </form>
+</div>
+{{ end }}
+
+{{ define "script" }}
+{{ end }}

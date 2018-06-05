@@ -1,0 +1,24 @@
+{{ define "layout" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+{{if .cfg.Favicon}}
+    <link rel="icon" href="{{.cfg.Favicon}}">{{end}}
+    <title>Login</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="//code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div>
+    {{if .cfg.Logo}}<img src="{{.cfg.Logo}}"/>{{end}}
+    {{if .cfg.ServerName}}<h1>{{.cfg.ServerName}}</h1>{{end}}
+    </div>
+{{ template "content" . }}
+</div>
+</body>
+</html>
+{{ template "script" . }}
+{{ end }}
