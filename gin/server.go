@@ -21,8 +21,6 @@ const (
 )
 
 func main() {
-	engine := engine.NewEngine()
-
 	rdsOpt := redis.Options{
 		Addr:     rdsAddr,
 		Password: rdsPassword,
@@ -39,8 +37,13 @@ func main() {
 	us := o2x.NewUserStore()
 	as := o2x.NewAuthStore()
 
-	o2.InitOauth2Server(cs, ts, us, as, nil)
+	cfg := o2.DefaultServerConfig()
+	cfg.ServerName = "Test Gin Oauth2 Server"
+	cfg.TemplatePrefix = "../template/"
 
+	o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
+
+	engine := engine.GetGinEngine()
 	engine.Run(Oauth2ListenAddr)
 	log.Println("oauth2 server start on ", Oauth2ListenAddr)
 }

@@ -13,44 +13,66 @@ import (
 
 var loginTemplate *template.Template
 var authTemplate *template.Template
+var indexTemplate *template.Template
 
 func InitTemplate() {
-	layout := path("layout.html")
-	login := path("login.html")
-	auth := path("auth.html")
+	layout, err := path("layout.html")
+	if err != nil || layout == "" {
+		panic("cant load template")
+		return
+	}
 
-	var err error
-	loginTemplate, err = template.ParseFiles(layout, login)
-	if err != nil {
-		panic(err)
-	}
-	authTemplate, err = template.ParseFiles(layout, auth)
-	if err != nil {
-		panic(err)
-	}
+	loginTemplate = initPageTemplate(layout, "login.html")
+	authTemplate = initPageTemplate(layout, "auth.html")
+	indexTemplate = initPageTemplate(layout, "index.html")
 }
 
-func path(name string) string {
+func initPageTemplate(layout string, filename string) *template.Template {
+	page, err := path(filename)
+	if err != nil || page == "" {
+		panic("cant load template")
+		return nil
+	}
+	t, err := template.ParseFiles(layout, page)
+	if err != nil {
+		panic(err)
+		return nil
+	}
+	return t
+}
+
+func path(name string) (path string, err error) {
 	layouts, err := filepath.Glob(oauth2Cfg.TemplatePrefix + name)
 	if err != nil {
 		panic(err)
+		return
 	}
-	return layouts[0]
+	if len(layouts) > 0 {
+		path = layouts[0]
+		return
+	}
+	return
 }
 
-func execLoginTemplate(w http.ResponseWriter, r *http.Request, data interface{}) {
+func execLoginTemplate(w http.ResponseWriter, r *http.Request, data map[string]interface{}) {
 	execTemplate(w, r, loginTemplate, "layout", data)
 }
 
-func execAuthTemplate(w http.ResponseWriter, r *http.Request, data interface{}) {
+func execAuthTemplate(w http.ResponseWriter, r *http.Request, data map[string]interface{}) {
 	execTemplate(w, r, authTemplate, "layout", data)
 }
 
-func execTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Template, name string, data interface{}) {
+func execIndexTemplate(w http.ResponseWriter, r *http.Request, data map[string]interface{}) {
+	execTemplate(w, r, indexTemplate, "layout", data)
+}
+
+func execTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Template, name string, data map[string]interface{}) {
+	data["cfg"] = oauth2Cfg
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err := tpl.ExecuteTemplate(w, name, data)
 	if err != nil {
 		log.Printf("The template %s exec error:%v\n", name, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, err, http.StatusInternalServerError)
 	}
 }

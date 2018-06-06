@@ -25,7 +25,8 @@ go run server.go
 
 ```
 # request
-curl http://localhost:9096/oauth2/token?grant_type=client_credentials&client_id=000000&client_secret=999999&scope=read`
+curl http://localhost:9096/oauth2/token?grant_type=client_credentials&scope=read \
+  -H 'Authorization: Basic MDAwMDAwOjk5OTk5OQ=='
 
 # response
 {"access_token":"FZGYOSWDMQMX23BM5BHCWQ","expires_in":7200,"scope":"read","token_type":"Bearer"}
@@ -56,11 +57,11 @@ curl -X POST \
 ```
 # request
 curl -X POST \
-  http://127.0.0.1:9096/token \
+  http://127.0.0.1:9096/oauth2/token \
   -H 'Authorization: Basic MDAwMDAwOjk5OTk5OQ==' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'grant_type=refresh_token&refresh_token=EKBGAM00XQYBNA_VE_IYPW'
+  -d 'grant_type=refresh_token&refresh_token=LX5J_I57WPOW8ZATJRDLYQ'
 
 # response
 {
@@ -75,7 +76,7 @@ curl -X POST \
 
 ```
 # request
-http://127.0.0.1:9096/authorize?redirect_uri=http%3A%2F%2Flocalhost&client_id=000000&response_type=token&state=xyz&scope=read
+http://127.0.0.1:9096/oauth2/authorize?redirect_uri=http%3A%2F%2Flocalhost&client_id=000000&response_type=token&state=xyz&scope=read
 
 # response
 http://localhost/#access_token=2PMWPTCTOXWXGKTSLH4TNQ&expires_in=3600&scope=read&state=xyz&token_type=Bearer
@@ -86,14 +87,11 @@ http://localhost/#access_token=2PMWPTCTOXWXGKTSLH4TNQ&expires_in=3600&scope=read
 ```
 # request
 curl -X GET \
-  http://127.0.0.1:9096/valid \
-  -H 'Authorization: Bearer 2PMWPTCTOXWXGKTSLH4TNQ'
+  http://127.0.0.1:9096/oauth2/valid \
+  -H 'Authorization: Bearer 48ZVGMI3PTWUYYCKMVKPAQ'
 
 # response
-{"ClientID":"000000","UserID":"000000","RedirectURI":"http://localhost","Scope":"read"
-,"Code":"","CodeCreateAt":"0001-01-01T00:00:00Z","CodeExpiresIn":0
-,"Access":"2PMWPTCTOXWXGKTSLH4TNQ","AccessCreateAt":"2018-05-29T11:10:17.533296011+08:00","AccessExpiresIn":3600000000000
-,"Refresh":"","RefreshCreateAt":"0001-01-01T00:00:00Z","RefreshExpiresIn":0}
+{"client_id":"000000","user_id":"u1"}
 ```
 
 

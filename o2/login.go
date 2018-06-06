@@ -14,7 +14,7 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(context.Background(), w, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -27,17 +27,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		userID, err := PasswordAuthorizationHandler(username, password)
-		if err != nil {
-			showLogin(w, r, err.Error())
+		userID, authErr := PasswordAuthorizationHandler(username, password)
+		if authErr != nil {
+			showLogin(w, r, authErr.Error())
 			return
 		}
 
 		store.Set(SessionUserID, userID)
 		err = store.Save()
 		if err != nil {
-			log.Printf("login failed: %v\n", err)
-			showLogin(w, r, err.Error())
 			return
 		}
 		log.Printf("login success userID: %v\n", userID)
@@ -51,7 +49,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func showLogin(w http.ResponseWriter, r *http.Request, err string) {
 	m := map[string]interface{}{
-		"cfg":   oauth2Cfg,
 		"error": err,
 	}
 	execLoginTemplate(w, r, m)

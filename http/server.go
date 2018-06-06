@@ -18,12 +18,6 @@ const (
 )
 
 func main() {
-	http.HandleFunc(o2.Oauth2UriLogin, o2.LoginHandler)
-	http.HandleFunc(o2.Oauth2UriAuth, o2.AuthHandler)
-	http.HandleFunc(o2.Oauth2UriAuthorize, o2.AuthorizeRequestHandler)
-	http.HandleFunc(o2.Oauth2UriToken, o2.TokenRequestHandler)
-	http.HandleFunc(o2.Oauth2UriValid, o2.BearerTokenValidator)
-
 	ts, err := store.NewMemoryTokenStore()
 	if err != nil {
 		panic(err)
@@ -32,9 +26,11 @@ func main() {
 	us := o2x.NewUserStore()
 	as := o2x.NewAuthStore()
 
-	cfg := o2.DefaultOauth2Config()
+	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Test Memory Oauth2 Server"
-	o2.InitOauth2Server(cs, ts, us, as, cfg)
+	cfg.TemplatePrefix = "../template/"
+
+	o2.InitOauth2Server(cs, ts, us, as, cfg, http.HandleFunc)
 
 	DemoClient(cs)
 	DemoUser(us)

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"fmt"
 	"net/url"
+	"encoding/json"
+	"log"
 )
 
 func authQuery(r *http.Request) (q string) {
@@ -20,26 +22,72 @@ func authQuery(r *http.Request) (q string) {
 	state := state(r)
 	scope := scope(r)
 
-	return fmt.Sprintf("redirect_uri=%v&client_id=%v&response_type=%v&state=%v&scope=%v", redirectUri, clientID, responseType, state, scope)
+	if redirectUri == "" || clientID == "" || responseType == "" || scope == "" {
+		return
+	}
+
+	q = fmt.Sprintf("redirect_uri=%v&client_id=%v&response_type=%v&state=%v&scope=%v", redirectUri, clientID, responseType, state, scope)
+	return
+}
+
+// ---------------------------
+func FormatRedirectUri(uri string) string {
+	if oauth2Cfg.UriPrefix != "" {
+		return oauth2Cfg.UriPrefix + oauth2Cfg.UriContext + uri
+	}
+	return oauth2Cfg.UriContext + uri
+}
+
+func redirectToIndex(w http.ResponseWriter, r *http.Request) {
+	redirectToUri(w, r, oauth2UriIndex, "")
 }
 
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	redirectToUri(w, r, Oauth2UriLogin)
+	authRedirect(w, r, oauth2UriLogin)
 }
 
 func redirectToAuth(w http.ResponseWriter, r *http.Request) {
-	redirectToUri(w, r, Oauth2UriAuth)
+	authRedirect(w, r, oauth2UriAuth)
 }
 
 func redirectToAuthorize(w http.ResponseWriter, r *http.Request) {
-	redirectToUri(w, r, Oauth2UriAuthorize)
+	authRedirect(w, r, oauth2UriAuthorize)
 }
 
-func redirectToUri(w http.ResponseWriter, r *http.Request, uri string) {
+func authRedirect(w http.ResponseWriter, r *http.Request, uri string) {
 	q := authQuery(r)
-	loc := FormatRedirectUri(uri) + "?" + q
+	if uri != oauth2UriLogin && q == "" {
+		redirectToIndex(w, r)
+	} else {
+		redirectToUri(w, r, uri, q)
+	}
+}
+
+func redirectToUri(w http.ResponseWriter, r *http.Request, uri string, query string) {
+	loc := FormatRedirectUri(uri)
+	if query != "" {
+		loc += "?" + query
+	}
 	w.Header().Set("Location", loc)
 	w.WriteHeader(http.StatusFound)
+}
+
+func errorResponse(w http.ResponseWriter, err error, status int) {
+	response(w, map[string]string{
+		"error":             "server_error",
+		"error_description": err.Error(),
+	}, status)
+}
+
+func response(w http.ResponseWriter, data interface{}, status int) {
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
+	w.WriteHeader(status)
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func redirectUri(r *http.Request) string {

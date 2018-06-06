@@ -14,9 +14,28 @@ type ServerConfig struct {
 	// logo url
 	Logo string
 
-	// uri prefix to add before redirect uri
+	// uri context
+	UriContext string
+
+	// uri prefix to add before authRedirect uri
 	UriPrefix string
 
 	// template path prefix
 	TemplatePrefix string
+}
+
+
+// ---------------------------
+func DefaultServerConfig() *ServerConfig {
+	if defaultOauth2Cfg == nil {
+		defaultOauth2Cfg = &ServerConfig{
+			UriPrefix:      "",
+			UriContext:     "/oauth2",
+			TemplatePrefix: "./",
+			ServerName:     "Oauth2 Server",
+			Logo:           "https://oauth.net/images/oauth-2-sm.png",
+			Favicon:        "https://oauth.net/images/oauth-logo-square.png",
+		}
+	}
+	return defaultOauth2Cfg
 }

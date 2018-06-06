@@ -14,7 +14,7 @@ import (
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(context.Background(), w, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 	uid, _ := store.Get(SessionUserID)
@@ -44,7 +44,6 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	m := map[string]interface{}{
-		"cfg":    oauth2Cfg,
 		"client": clientID,
 		"scope":  scope,
 	}
