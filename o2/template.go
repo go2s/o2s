@@ -38,7 +38,7 @@ func initPageTemplate(layout string, filename string) *template.Template {
 		panic(err)
 		return nil
 	}
-	log.Printf("load template:%v\n", t)
+	log.Printf("load template:%v\n", t.Name())
 	return t
 }
 

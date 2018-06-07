@@ -60,7 +60,6 @@ func main() {
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Lambda Oauth2 Server"
 	cfg.TemplatePrefix = "./"
-	cfg.UriPrefix = "/" + LambdaStaging
 
 	o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
 
@@ -71,6 +70,7 @@ func main() {
 
 	if lambdaMode {
 		log.Println("lambda mode oauth2 server")
+		cfg.UriPrefix = "/" + LambdaStaging
 		lambda.Start(handleRequest)
 	} else {
 		log.Println("gin mode oauth2 server")

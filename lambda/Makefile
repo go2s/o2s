@@ -25,7 +25,7 @@
 # For more information, please refer to <http://unlicense.org/>
 #
 
-HANDLER ?= o2s
+HANDLER ?= main
 PACKAGE ?= $(HANDLER)
 
 ifeq ($(OS),Windows_NT)

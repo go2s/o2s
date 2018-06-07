@@ -11,19 +11,18 @@ import (
 
 var ginEngine *gin.Engine
 
-func init() {
-	ginEngine = gin.Default()
-}
-
 func GetGinEngine() *gin.Engine {
+	if ginEngine == nil {
+		ginEngine = gin.Default()
+	}
 	return ginEngine
 }
 
 func GinMap(pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
-	ginEngine.GET(pattern, func(c *gin.Context) {
+	GetGinEngine().GET(pattern, func(c *gin.Context) {
 		handler(c.Writer, c.Request)
 	})
-	ginEngine.POST(pattern, func(c *gin.Context) {
+	GetGinEngine().POST(pattern, func(c *gin.Context) {
 		handler(c.Writer, c.Request)
 	})
 }
