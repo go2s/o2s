@@ -38,6 +38,7 @@ func initPageTemplate(layout string, filename string) *template.Template {
 		panic(err)
 		return nil
 	}
+	log.Printf("load template:%v\n", t)
 	return t
 }
 
@@ -49,6 +50,7 @@ func path(name string) (path string, err error) {
 	}
 	if len(layouts) > 0 {
 		path = layouts[0]
+		log.Printf("read path:%v\n", path)
 		return
 	}
 	return
