@@ -16,7 +16,7 @@ var authTemplate *template.Template
 var indexTemplate *template.Template
 
 func InitTemplate() {
-	layout, err := path("layout.html")
+	layout, err := oneFilePath("layout.html")
 	if err != nil || layout == "" {
 		panic("cant load template")
 		return
@@ -28,9 +28,9 @@ func InitTemplate() {
 }
 
 func initPageTemplate(layout string, filename string) *template.Template {
-	page, err := path(filename)
+	page, err := oneFilePath(filename)
 	if err != nil || page == "" {
-		panic("cant load template")
+		panic("cant load template:" + filename)
 		return nil
 	}
 	t, err := template.ParseFiles(layout, page)
@@ -38,11 +38,11 @@ func initPageTemplate(layout string, filename string) *template.Template {
 		panic(err)
 		return nil
 	}
-	log.Printf("load template:%v\n", t.Name())
+	log.Printf("load file:%v,%v ; template:%v\n", layout, page, t.DefinedTemplates())
 	return t
 }
 
-func path(name string) (path string, err error) {
+func oneFilePath(name string) (path string, err error) {
 	layouts, err := filepath.Glob(oauth2Cfg.TemplatePrefix + name)
 	if err != nil {
 		panic(err)
@@ -50,7 +50,6 @@ func path(name string) (path string, err error) {
 	}
 	if len(layouts) > 0 {
 		path = layouts[0]
-		log.Printf("read path:%v\n", path)
 		return
 	}
 	return
