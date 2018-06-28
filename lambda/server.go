@@ -14,6 +14,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"flag"
 	"log"
+	"github.com/go2s/o2x"
 )
 
 var (
@@ -53,13 +54,13 @@ func main() {
 
 	cs := o2m.NewClientStore(mgoSession, mgoDatabase, "client")
 
-	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user")
+	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user", o2x.SimpleUserPtrType)
 
 	as := o2m.NewAuthStore(mgoSession, mgoDatabase, "auth")
 
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Lambda Oauth2 Server"
-	cfg.TemplatePrefix = "./"
+	cfg.TemplatePrefix = "../template/"
 
 	o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
 

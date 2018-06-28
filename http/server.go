@@ -51,7 +51,7 @@ func DemoClient(cs o2x.Oauth2ClientStore) {
 }
 
 func DemoUser(us o2x.UserStore) {
-	u := &o2x.User{
+	u := &o2x.SimpleUser{
 		UserID:   "u1",
 		Nickname: "u1",
 	}

@@ -31,7 +31,7 @@ func PasswordAuthorizationHandler(username, password string) (userID string, err
 		return
 	}
 	if u != nil && u.Match(password) {
-		userID = u.UserID
+		userID = u.GetUserID()
 		return
 	}
 	err = errors.New("invalid user or password")
