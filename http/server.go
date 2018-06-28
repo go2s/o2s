@@ -53,9 +53,8 @@ func DemoClient(cs o2x.Oauth2ClientStore) {
 func DemoUser(us o2x.UserStore) {
 	u := &o2x.SimpleUser{
 		UserID:   "u1",
-		Nickname: "u1",
 	}
-	u.SetPassword("123456")
+	u.SetRawPassword("123456")
 	err := us.Save(u)
 	if err != nil {
 		log.Printf("create demo user error: %v\n", err)

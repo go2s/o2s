@@ -14,7 +14,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"flag"
 	"log"
-	"github.com/go2s/o2x"
 )
 
 var (
@@ -54,7 +53,7 @@ func main() {
 
 	cs := o2m.NewClientStore(mgoSession, mgoDatabase, "client")
 
-	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user", o2x.SimpleUserPtrType)
+	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user", o2m.DefaultMgoUserCfg())
 
 	as := o2m.NewAuthStore(mgoSession, mgoDatabase, "auth")
 

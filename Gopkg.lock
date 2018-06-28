@@ -59,28 +59,22 @@
   version = "v6.12.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/go2s/o2m"
   packages = ["."]
-  revision = "e74c91585123b8a3da181e3fda8698552396f231"
+  revision = "e62753075fd37be7f86fd2dfac2cfdd639e0a65b"
+  version = "v1.1.1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/go2s/o2r"
   packages = ["."]
-  revision = "ed2f4c31069589eae35ef7100295a7b3bec6da1f"
+  revision = "6a268cc3379a01829f1c69a8227b8457c7deab10"
+  version = "1.2.0"
 
 [[projects]]
   name = "github.com/go2s/o2x"
   packages = ["."]
-  revision = "5e211eda71745299522d2e3961d4e103d9db89e1"
-  version = "1.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/golang/glog"
-  packages = ["."]
-  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
+  revision = "966cc377745f25d9c047192b443ff707139781b1"
+  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -237,6 +231,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3afca3d98943ee25a9afcbc711f77aaa28eeafbd7b6af9c7f405225ba056a690"
+  inputs-digest = "e7409939b19a6431c8698f4e6fa81efc483071d6bbd4c04a8efd027a1033b15e"
   solver-name = "gps-cdcl"
   solver-version = 1

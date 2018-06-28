@@ -25,9 +25,9 @@
 
 [[constraint]]
   name = "github.com/go2s/o2m"
-  branch = "master"
+  version = ">=v1.1.1"
 
 [[constraint]]
   name = "github.com/go2s/o2r"
-  branch = "master"
+  version = ">=v1.2.0"
 
