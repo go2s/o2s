@@ -40,12 +40,6 @@ endif
 
 MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 
-.PHONY: docker
-
-all: build pack perm
-
-.PHONY: all
-
 build:
 	GOOS=linux go build -tags dev -ldflags='-w -s $(LDFLAGS)' -o $(HANDLER)
 
@@ -55,22 +49,11 @@ build-qa:
 build-prod:
 	GOOS=linux go build -tags prod -ldflags='-w -s $(LDFLAGS)' -o $(HANDLER)
 
-.PHONY: build
-
 zip:
 	$(RM) $(PACKAGE).zip
 	cp ../template/*.html .
 	zip $(PACKAGE).zip $(HANDLER) *.html
 	$(RM) *.html
 
-.PHONY: pack
-
-perm:
-	chown $(shell stat -c '%u:%g' .) $(HANDLER) $(PACKAGE).zip
-
-.PHONY: perm
-
 clean:
 	$(RM) $(HANDLER) $(PACKAGE).zip
-
-.PHONY: clean

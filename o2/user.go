@@ -9,6 +9,7 @@ import (
 	"errors"
 	"gopkg.in/session.v2"
 	"context"
+	"github.com/go2s/o2x"
 )
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
@@ -31,8 +32,8 @@ func PasswordAuthorizationHandler(username, password string) (userID string, err
 		return
 	}
 	if u != nil && u.Match(password) {
-		userID = u.GetUserID()
-		return
+		uid := u.GetUserID()
+		return o2x.UserIdString(uid)
 	}
 	err = errors.New("invalid user or password")
 	return
