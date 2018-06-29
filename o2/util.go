@@ -117,3 +117,12 @@ func username(r *http.Request) string {
 func password(r *http.Request) string {
 	return r.FormValue("password")
 }
+
+func anyNil(args ... string) bool {
+	for _, arg := range args {
+		if arg == "" {
+			return true
+		}
+	}
+	return false
+}

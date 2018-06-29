@@ -109,8 +109,7 @@
 [[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
+  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
 
 [[projects]]
   branch = "master"
@@ -127,8 +126,8 @@
 [[projects]]
   name = "github.com/tidwall/gjson"
   packages = ["."]
-  revision = "01f00f129617a6fe98941fb920d6c760241b54d2"
-  version = "v1.1.0"
+  revision = "f123b340873a0084cb27267eddd8ff615115fbff"
+  version = "v1.1.2"
 
 [[projects]]
   branch = "master"
@@ -170,13 +169,13 @@
     "pbkdf2",
     "scrypt"
   ]
-  revision = "b47b1587369238182299fe4dad77d05b8b461e06"
+  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "538ab54ba952cc4c7c705fa213fbf7993c97c175"
+  revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"
@@ -231,6 +230,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3afca3d98943ee25a9afcbc711f77aaa28eeafbd7b6af9c7f405225ba056a690"
+  inputs-digest = "97c50297e4cad8cc2071ce3172dded93716800caac8546e8865c0577135bc664"
   solver-name = "gps-cdcl"
   solver-version = 1

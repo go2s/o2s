@@ -20,13 +20,23 @@ const (
 	oauth2UriAuthorize = "/authorize"
 	oauth2UriToken     = "/token"
 	oauth2UriValid     = "/valid"
+	oauth2UriUser      = "/user"
 )
 
 // ---------------------------
-var oauth2Svr *server.Server
-var oauth2Mgr *manage.Manager
-var oauth2Cfg *ServerConfig
-var defaultOauth2Cfg *ServerConfig
+var (
+	oauth2Svr        *server.Server
+	oauth2Mgr        *manage.Manager
+	oauth2Cfg        *ServerConfig
+	defaultOauth2Cfg *ServerConfig
+)
+
+func defaultSuccessResponse() map[string]interface{} {
+	data := map[string]interface{}{
+		"error": "ok",
+	}
+	return data
+}
 
 // expose for custom configuration
 func GetOauth2Svr() *server.Server {
