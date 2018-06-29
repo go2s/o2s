@@ -38,12 +38,12 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 
 	o2xTokenStore, o2xTokenAccountSupport = ts.(o2x.Oauth2TokenStore)
 
-	manager := manage.NewDefaultManager()
+	oauth2Mgr = manage.NewDefaultManager()
 
-	manager.MustTokenStorage(ts, nil)
-	manager.MustClientStorage(cs, nil)
+	oauth2Mgr.MustTokenStorage(ts, nil)
+	oauth2Mgr.MustClientStorage(cs, nil)
 
-	DefaultTokenConfig(manager)
+	DefaultTokenConfig(oauth2Mgr)
 
 	oauth2Svr = server.NewServer(&server.Config{
 		TokenType:            "Bearer",
@@ -55,7 +55,7 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 			oauth2.Refreshing,
 			oauth2.Implicit,
 		},
-	}, manager)
+	}, oauth2Mgr)
 
 	oauth2Svr.SetAllowGetAccessRequest(true)
 	oauth2Svr.SetClientInfoHandler(server.ClientBasicHandler)
