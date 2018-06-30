@@ -17,7 +17,7 @@ import (
 	"context"
 )
 
-type HandleMapper func(pattern string, handler func(w http.ResponseWriter, r *http.Request))
+type HandleMapper func(method, pattern string, handler func(w http.ResponseWriter, r *http.Request))
 
 // ---------------------------
 func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserStore, as o2x.AuthStore, cfg *ServerConfig, mapper HandleMapper) {
@@ -79,14 +79,23 @@ func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
 		oauth2Cfg = DefaultServerConfig()
 	}
 
-	mapper(cfg.UriContext+oauth2UriIndex, IndexHandler)
-	mapper(cfg.UriContext+oauth2UriLogin, LoginHandler)
-	mapper(cfg.UriContext+oauth2UriAuth, AuthHandler)
-	mapper(cfg.UriContext+oauth2UriAuthorize, AuthorizeRequestHandler)
-	mapper(cfg.UriContext+oauth2UriToken, TokenRequestHandler)
-	mapper(cfg.UriContext+oauth2UriValid, BearerTokenValidator)
+	mapper(http.MethodGet, cfg.UriContext+oauth2UriIndex, IndexHandler)
 
-	mapper(cfg.UriContext+oauth2UriUser, AddUserHandler)
+	mapper(http.MethodGet, cfg.UriContext+oauth2UriLogin, LoginHandler)
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriLogin, LoginHandler)
+
+	mapper(http.MethodGet, cfg.UriContext+oauth2UriAuth, AuthHandler)
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriAuth, AuthHandler)
+
+	mapper(http.MethodGet, cfg.UriContext+oauth2UriAuthorize, AuthorizeRequestHandler)
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriAuthorize, AuthorizeRequestHandler)
+
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriToken, TokenRequestHandler)
+
+	mapper(http.MethodGet, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
+
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriUser, AddUserHandler)
 
 	InitTemplate()
 }

@@ -17,6 +17,18 @@ const (
 	Oauth2ListenAddr = ":9096"
 )
 
+var (
+	handleMap = map[string]func(w http.ResponseWriter, r *http.Request){}
+)
+
+func HandleHttp(method, pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
+	if _, exist := handleMap[pattern]; exist {
+		return
+	}
+	handleMap[pattern] = handler
+	http.DefaultServeMux.HandleFunc(pattern, handler)
+}
+
 func main() {
 	ts, err := store.NewMemoryTokenStore()
 	if err != nil {
@@ -30,7 +42,7 @@ func main() {
 	cfg.ServerName = "Test Memory Oauth2 Server"
 	cfg.TemplatePrefix = "../template/"
 
-	o2.InitOauth2Server(cs, ts, us, as, cfg, http.HandleFunc)
+	o2.InitOauth2Server(cs, ts, us, as, cfg, HandleHttp)
 
 	DemoClient(cs)
 	DemoUser(us)
@@ -52,7 +64,7 @@ func DemoClient(cs o2x.Oauth2ClientStore) {
 
 func DemoUser(us o2x.UserStore) {
 	u := &o2x.SimpleUser{
-		UserID:   "u1",
+		UserID: "u1",
 	}
 	u.SetRawPassword("123456")
 	err := us.Save(u)

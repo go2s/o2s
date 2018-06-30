@@ -18,11 +18,8 @@ func GetGinEngine() *gin.Engine {
 	return ginEngine
 }
 
-func GinMap(pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
-	GetGinEngine().GET(pattern, func(c *gin.Context) {
-		handler(c.Writer, c.Request)
-	})
-	GetGinEngine().POST(pattern, func(c *gin.Context) {
+func GinMap(method, pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
+	GetGinEngine().Handle(method, pattern, func(c *gin.Context) {
 		handler(c.Writer, c.Request)
 	})
 }
