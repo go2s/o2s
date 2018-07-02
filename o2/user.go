@@ -66,7 +66,9 @@ func AddUser(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 	if u != nil {
-		err = ErrDuplicated
+		data := defaultErrorResponse(ErrDuplicated)
+		data["user_id"] = u.GetUserID()
+		response(w, data, http.StatusConflict)
 		return
 	}
 

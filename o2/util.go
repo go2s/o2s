@@ -73,10 +73,7 @@ func redirectToUri(w http.ResponseWriter, r *http.Request, uri string, query str
 }
 
 func errorResponse(w http.ResponseWriter, err error, status int) {
-	response(w, map[string]string{
-		"error":             "server_error",
-		"error_description": err.Error(),
-	}, status)
+	response(w, defaultErrorResponse(err), status)
 }
 
 func response(w http.ResponseWriter, data interface{}, status int) {

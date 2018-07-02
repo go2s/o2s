@@ -113,7 +113,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := u.(string)
 	m := map[string]interface{}{
-		"userID": userID,
+		"user_id": userID,
 	}
 	execIndexTemplate(w, r, m)
 }

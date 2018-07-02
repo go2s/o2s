@@ -4,10 +4,33 @@
 
 package o2
 
-import "errors"
+type ErrorCoder interface {
+	error
+	ErrorCode() string
+}
+
+type CodeError struct {
+	code    string
+	message string
+}
+
+func (e *CodeError) ErrorCode() string {
+	return e.code
+}
+
+func (e *CodeError) Error() string {
+	return e.message
+}
+
+func NewCodeError(code, message string) *CodeError {
+	return &CodeError{
+		code:    code,
+		message: message,
+	}
+}
 
 var (
-	ErrValueRequired = errors.New("value required")
-	ErrNotFound      = errors.New("not found")
-	ErrDuplicated    = errors.New("duplicated")
+	ErrValueRequired = NewCodeError("E100", "value required")
+	ErrNotFound      = NewCodeError("E101", "not found")
+	ErrDuplicated    = NewCodeError("E102", "duplicated")
 )

@@ -38,6 +38,17 @@ func defaultSuccessResponse() map[string]interface{} {
 	return data
 }
 
+func defaultErrorResponse(err error) map[string]interface{} {
+	data := map[string]interface{}{
+		"error":             "server_error",
+		"error_description": err.Error(),
+	}
+	if e, ok := err.(ErrorCoder); ok {
+		data["error"] = e.ErrorCode()
+	}
+	return data
+}
+
 // expose for custom configuration
 func GetOauth2Svr() *server.Server {
 	return oauth2Svr
