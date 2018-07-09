@@ -4,33 +4,79 @@
 
 package o2
 
-type ErrorCoder interface {
+import (
+	goErr "errors"
+	"net/http"
+	"gopkg.in/oauth2.v3/errors"
+	"log"
+)
+
+type httpError interface {
 	error
-	ErrorCode() string
+	Code() int
+	Status() int
 }
 
-type CodeError struct {
-	code    string
-	message string
+type OauthError struct {
+	status int
+	code   int
+	err    error
 }
 
-func (e *CodeError) ErrorCode() string {
+func (e *OauthError) Status() int {
+	return e.status
+}
+
+func (e *OauthError) Code() int {
 	return e.code
 }
 
-func (e *CodeError) Error() string {
-	return e.message
+func (e *OauthError) Error() string {
+	return e.err.Error()
 }
 
-func NewCodeError(code, message string) *CodeError {
-	return &CodeError{
-		code:    code,
-		message: message,
+func NewOauthError(status, code int, err string) *OauthError {
+	return &OauthError{
+		status: status,
+		code:   code,
+		err:    goErr.New(err),
 	}
 }
 
-var (
-	ErrValueRequired = NewCodeError("E100", "value required")
-	ErrNotFound      = NewCodeError("E101", "not found")
-	ErrDuplicated    = NewCodeError("E102", "duplicated")
+const (
+	ErrCodeInternalError     = 100
+	ErrCodeInvalidCredential = 101
+	ErrCodeValueRequired     = 200
+	ErrCodeNotFound          = 201
+	ErrCodeDuplicated        = 202
 )
+
+var (
+	ErrInternalError     = NewOauthError(http.StatusInternalServerError, ErrCodeInternalError, "internal error")
+	ErrInvalidCredential = NewOauthError(http.StatusUnauthorized, ErrCodeInvalidCredential, "invalid credential")
+	ErrValueRequired     = NewOauthError(http.StatusBadRequest, ErrCodeValueRequired, "value required")
+	ErrNotFound          = NewOauthError(http.StatusNotFound, ErrCodeNotFound, "not found")
+	ErrDuplicated        = NewOauthError(http.StatusConflict, ErrCodeDuplicated, "duplicated")
+)
+
+func InternalErrorHandler(err error) (re *errors.Response) {
+	if herr, ok := err.(httpError); ok {
+		re = &errors.Response{
+			StatusCode: herr.Status(),
+			ErrorCode:  herr.Code(),
+			Error:      herr,
+		}
+		return
+	}
+
+	re = &errors.Response{
+		StatusCode: ErrInternalError.status,
+		ErrorCode:  ErrInternalError.code,
+		Error:      err,
+	}
+	return
+}
+
+func ResponseErrorHandler(re *errors.Response) {
+	log.Println("Internal Error:", re.Error)
+}

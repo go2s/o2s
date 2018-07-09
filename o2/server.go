@@ -5,10 +5,8 @@
 package o2
 
 import (
-	"log"
 	"net/http"
 	"gopkg.in/oauth2.v3/manage"
-	"gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/server"
 	"gopkg.in/oauth2.v3"
 
@@ -61,15 +59,8 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	oauth2Svr.SetClientInfoHandler(server.ClientBasicHandler)
 	oauth2Svr.SetPasswordAuthorizationHandler(PasswordAuthorizationHandler)
 	oauth2Svr.SetUserAuthorizationHandler(userAuthorizeHandler)
-
-	oauth2Svr.SetInternalErrorHandler(func(err error) (re *errors.Response) {
-		log.Println("Internal Error:", err.Error())
-		return
-	})
-
-	oauth2Svr.SetResponseErrorHandler(func(re *errors.Response) {
-		log.Println("Response Error:", re.Error.Error())
-	})
+	oauth2Svr.SetInternalErrorHandler(InternalErrorHandler)
+	oauth2Svr.SetResponseErrorHandler(ResponseErrorHandler)
 }
 
 func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {

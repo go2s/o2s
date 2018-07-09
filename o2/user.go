@@ -6,7 +6,6 @@ package o2
 
 import (
 	"net/http"
-	"errors"
 	oauth2_errors "gopkg.in/oauth2.v3/errors"
 	"gopkg.in/session.v2"
 	"context"
@@ -36,7 +35,7 @@ func PasswordAuthorizationHandler(username, password string) (userID string, err
 		uid := u.GetUserID()
 		return o2x.UserIdString(uid)
 	}
-	err = errors.New("invalid user or password")
+	err = ErrInvalidCredential
 	return
 }
 

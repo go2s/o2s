@@ -43,8 +43,8 @@ func defaultErrorResponse(err error) map[string]interface{} {
 		"error":             "server_error",
 		"error_description": err.Error(),
 	}
-	if e, ok := err.(ErrorCoder); ok {
-		data["error"] = e.ErrorCode()
+	if e, ok := err.(httpError); ok {
+		data["error"] = e.Code()
 	}
 	return data
 }
