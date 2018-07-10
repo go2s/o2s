@@ -14,13 +14,14 @@ import (
 const (
 	SessionUserID = "UserID"
 
-	oauth2UriIndex     = "/index"
-	oauth2UriLogin     = "/login"
-	oauth2UriAuth      = "/auth"
-	oauth2UriAuthorize = "/authorize"
-	oauth2UriToken     = "/token"
-	oauth2UriValid     = "/valid"
-	oauth2UriUser      = "/user"
+	oauth2UriIndex      = "/index"
+	oauth2UriLogin      = "/login"
+	oauth2UriAuth       = "/auth"
+	oauth2UriAuthorize  = "/authorize"
+	oauth2UriToken      = "/token"
+	oauth2UriValid      = "/valid"
+	oauth2UriUserAdd    = "/user"
+	oauth2UriUserRemove = "/user/remove"
 )
 
 // ---------------------------
@@ -43,7 +44,7 @@ func defaultErrorResponse(err error) map[string]interface{} {
 		"error":             "server_error",
 		"error_description": err.Error(),
 	}
-	if e, ok := err.(httpError); ok {
+	if e, ok := err.(o2x.CodeError); ok {
 		data["error"] = e.Code()
 	}
 	return data

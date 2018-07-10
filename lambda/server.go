@@ -67,6 +67,7 @@ func main() {
 
 	flag.BoolVar(&lambdaMode, "lambda", true, "lambda mode enable")
 	flag.Parse()
+	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
 
 	if lambdaMode {
 		log.Println("lambda mode oauth2 server")

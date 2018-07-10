@@ -35,21 +35,12 @@ func PasswordAuthorizationHandler(username, password string) (userID string, err
 		uid := u.GetUserID()
 		return o2x.UserIdString(uid)
 	}
-	err = ErrInvalidCredential
+	err = o2x.ErrInvalidCredential
 	return
 }
 
 // add new user handler
 func AddUserHandler(w http.ResponseWriter, r *http.Request) {
-	err := AddUser(w, r)
-	if err != nil {
-		errorResponse(w, err, http.StatusBadRequest)
-	}
-	return
-}
-
-// add new user
-func AddUser(w http.ResponseWriter, r *http.Request) (err error) {
 	clientID, err := ClientBasicAuth(r)
 	if err != nil {
 		return
@@ -57,18 +48,28 @@ func AddUser(w http.ResponseWriter, r *http.Request) (err error) {
 	username := username(r)
 	password := password(r)
 	if anyNil(username, password) {
-		err = ErrValueRequired
+		err = o2x.ErrValueRequired
 		return
 	}
-
-	u, err := oauth2UserStore.Find(username)
+	err = AddUser(clientID, username, password)
 	if err != nil {
+		data, statusCode, _ := oauth2Svr.GetErrorData(err)
+		data["user_id"] = username
+		response(w, data, statusCode)
+		return
+	}
+	response(w, defaultSuccessResponse(), http.StatusOK)
+	return
+}
+
+// add new user
+func AddUser(clientID, username, password string) (err error) {
+	u, err := oauth2UserStore.Find(username)
+	if err != nil && err != o2x.ErrNotFound {
 		return
 	}
 	if u != nil {
-		data := defaultErrorResponse(ErrDuplicated)
-		data["user_id"] = u.GetUserID()
-		response(w, data, http.StatusConflict)
+		err = o2x.ErrDuplicated
 		return
 	}
 
@@ -83,37 +84,37 @@ func AddUser(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	response(w, defaultSuccessResponse(), http.StatusOK)
 	return
 }
 
 // remove user handler
 func RemoveUserHandler(w http.ResponseWriter, r *http.Request) {
-	err := RemoveUser(w, r)
-	if err != nil {
-		errorResponse(w, err, http.StatusBadRequest)
-	}
-	return
-}
-
-// remove a user
-func RemoveUser(w http.ResponseWriter, r *http.Request) (err error) {
 	clientID, err := ClientBasicAuth(r)
 	if err != nil {
 		return
 	}
 	username := username(r)
 	if anyNil(username) {
-		err = ErrValueRequired
+		err = o2x.ErrValueRequired
+		return
+	}
+	err = RemoveUser(clientID, username)
+	if err != nil {
+		data, statusCode, _ := oauth2Svr.GetErrorData(err)
+		response(w, data, statusCode)
 		return
 	}
 
+	response(w, defaultSuccessResponse(), http.StatusOK)
+	return
+}
+
+// remove a user
+func RemoveUser(clientID, username string) (err error) {
 	glog.Infof("client %v remove user %v", clientID, username)
 	err = oauth2UserStore.Remove(username)
 	if err != nil {
 		return
 	}
-
-	response(w, defaultSuccessResponse(), http.StatusOK)
 	return
 }

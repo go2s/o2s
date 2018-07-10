@@ -62,7 +62,7 @@
   branch = "master"
   name = "github.com/go2s/o2m"
   packages = ["."]
-  revision = "941fdaf75e2f4658da8ab4e88cb1b8f8627d7ff5"
+  revision = "7aad5078fd72a86c2e0b88a06d751c5e00d20eff"
 
 [[projects]]
   branch = "master"
@@ -74,7 +74,7 @@
   branch = "master"
   name = "github.com/go2s/o2x"
   packages = ["."]
-  revision = "42cc8d77f7f84ea883946033c757ea750c58e92e"
+  revision = "6b8dfa70dd011544b13ae15c26f776d1c9cd46c3"
 
 [[projects]]
   branch = "master"

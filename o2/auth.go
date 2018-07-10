@@ -58,7 +58,7 @@ func ClientBasicAuth(r *http.Request) (cid string, err error) {
 		return
 	}
 	if anyNil(clientID, clientSecret) {
-		err = ErrValueRequired
+		err = o2x.ErrValueRequired
 		return
 	}
 	cli, err := oauth2Mgr.GetClient(clientID)

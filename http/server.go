@@ -11,7 +11,7 @@ import (
 	"gopkg.in/oauth2.v3/store"
 	"github.com/go2s/o2x"
 	"github.com/go2s/o2m"
-	"fmt"
+	"github.com/golang/glog"
 )
 
 const (
@@ -26,7 +26,7 @@ func HandleHttp(method, pattern string, handler func(w http.ResponseWriter, r *h
 	if _, exist := handleMap[pattern]; exist {
 		return
 	}
-	fmt.Printf("http map %v\n", pattern)
+	glog.Infof("http map %v", pattern)
 	handleMap[pattern] = handler
 	http.DefaultServeMux.HandleFunc(pattern, handler)
 }
