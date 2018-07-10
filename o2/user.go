@@ -87,17 +87,17 @@ func AddUser(w http.ResponseWriter, r *http.Request) (err error) {
 	return
 }
 
-// delete user handler
-func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
-	err := AddUser(w, r)
+// remove user handler
+func RemoveUserHandler(w http.ResponseWriter, r *http.Request) {
+	err := RemoveUser(w, r)
 	if err != nil {
 		errorResponse(w, err, http.StatusBadRequest)
 	}
 	return
 }
 
-// delete a user
-func DeleteUser(w http.ResponseWriter, r *http.Request) (err error) {
+// remove a user
+func RemoveUser(w http.ResponseWriter, r *http.Request) (err error) {
 	clientID, err := ClientBasicAuth(r)
 	if err != nil {
 		return

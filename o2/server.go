@@ -87,7 +87,7 @@ func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
 	mapper(http.MethodPost, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
 
 	mapper(http.MethodPost, cfg.UriContext+oauth2UriUser, AddUserHandler)
-	mapper(http.MethodDelete, cfg.UriContext+oauth2UriUser, DeleteUserHandler)
+	mapper(http.MethodDelete, cfg.UriContext+oauth2UriUser, RemoveUserHandler)
 
 	InitTemplate()
 }
