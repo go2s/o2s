@@ -87,6 +87,7 @@ func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
 	mapper(http.MethodPost, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
 
 	mapper(http.MethodPost, cfg.UriContext+oauth2UriUser, AddUserHandler)
+	mapper(http.MethodDelete, cfg.UriContext+oauth2UriUser, DeleteUserHandler)
 
 	InitTemplate()
 }
@@ -111,15 +112,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 func TokenRequestHandler(w http.ResponseWriter, r *http.Request) {
 	err := oauth2Svr.HandleTokenRequest(w, r)
-	if err != nil {
-		errorResponse(w, err, http.StatusBadRequest)
-	}
-	return
-}
-
-// add new user
-func AddUserHandler(w http.ResponseWriter, r *http.Request) {
-	err := AddUser(w, r)
 	if err != nil {
 		errorResponse(w, err, http.StatusBadRequest)
 	}

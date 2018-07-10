@@ -6,10 +6,10 @@ package o2
 
 import (
 	"net/http"
-	oauth2_errors "gopkg.in/oauth2.v3/errors"
 	"gopkg.in/session.v2"
 	"context"
 	"github.com/go2s/o2x"
+	"github.com/golang/glog"
 )
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
@@ -39,24 +39,25 @@ func PasswordAuthorizationHandler(username, password string) (userID string, err
 	return
 }
 
+// add new user handler
+func AddUserHandler(w http.ResponseWriter, r *http.Request) {
+	err := AddUser(w, r)
+	if err != nil {
+		errorResponse(w, err, http.StatusBadRequest)
+	}
+	return
+}
+
 // add new user
 func AddUser(w http.ResponseWriter, r *http.Request) (err error) {
-	clientID, clientSecret, err := oauth2Svr.ClientInfoHandler(r)
+	clientID, err := ClientBasicAuth(r)
 	if err != nil {
 		return
 	}
 	username := username(r)
 	password := password(r)
-	if anyNil(clientID, clientSecret, username, password) {
+	if anyNil(username, password) {
 		err = ErrValueRequired
-		return
-	}
-	cli, err := oauth2Mgr.GetClient(clientID)
-	if err != nil {
-		return
-	}
-	if clientSecret != cli.GetSecret() {
-		err = oauth2_errors.ErrInvalidClient
 		return
 	}
 
@@ -75,7 +76,40 @@ func AddUser(w http.ResponseWriter, r *http.Request) (err error) {
 		UserID: username,
 	}
 	user.SetRawPassword(password)
+
+	glog.Infof("client %v add user %v", clientID, username)
 	err = oauth2UserStore.Save(user)
+	if err != nil {
+		return
+	}
+
+	response(w, defaultSuccessResponse(), http.StatusOK)
+	return
+}
+
+// delete user handler
+func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	err := AddUser(w, r)
+	if err != nil {
+		errorResponse(w, err, http.StatusBadRequest)
+	}
+	return
+}
+
+// delete a user
+func DeleteUser(w http.ResponseWriter, r *http.Request) (err error) {
+	clientID, err := ClientBasicAuth(r)
+	if err != nil {
+		return
+	}
+	username := username(r)
+	if anyNil(username) {
+		err = ErrValueRequired
+		return
+	}
+
+	glog.Infof("client %v remove user %v", clientID, username)
+	err = oauth2UserStore.Remove(username)
 	if err != nil {
 		return
 	}

@@ -9,6 +9,7 @@ import (
 	"gopkg.in/session.v2"
 	"context"
 	"github.com/go2s/o2x"
+	oauth2Errors "gopkg.in/oauth2.v3/errors"
 )
 
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,4 +50,25 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	execAuthTemplate(w, r, m)
+}
+
+func ClientBasicAuth(r *http.Request) (cid string, err error) {
+	clientID, clientSecret, err := oauth2Svr.ClientInfoHandler(r)
+	if err != nil {
+		return
+	}
+	if anyNil(clientID, clientSecret) {
+		err = ErrValueRequired
+		return
+	}
+	cli, err := oauth2Mgr.GetClient(clientID)
+	if err != nil {
+		return
+	}
+	if clientSecret != cli.GetSecret() {
+		err = oauth2Errors.ErrInvalidClient
+		return
+	}
+	cid = clientID
+	return
 }
