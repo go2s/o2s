@@ -19,7 +19,7 @@
     "core",
     "gin"
   ]
-  revision = "6986cdf6237e77c4d9a721a1b153e904fa384a24"
+  revision = "3a4d35011e4a52d877a5fcb0aa494bbb4d20e27b"
 
 [[projects]]
   name = "github.com/codegangsta/inject"
@@ -62,7 +62,7 @@
   branch = "master"
   name = "github.com/go2s/o2m"
   packages = ["."]
-  revision = "7aad5078fd72a86c2e0b88a06d751c5e00d20eff"
+  revision = "f38a17500bbcd7d62240177ab0f9696da41b422d"
 
 [[projects]]
   branch = "master"
@@ -74,7 +74,7 @@
   branch = "master"
   name = "github.com/go2s/o2x"
   packages = ["."]
-  revision = "6b8dfa70dd011544b13ae15c26f776d1c9cd46c3"
+  revision = "b374d71ddb6a5f5d03e280e8ef8a31b13e073315"
 
 [[projects]]
   branch = "master"
@@ -111,6 +111,12 @@
   packages = ["."]
   revision = "4b7aa43c6742a2c18fdef89dd197aaae7dac7ccd"
   version = "1.0.1"
+
+[[projects]]
+  name = "github.com/patrickmn/go-cache"
+  packages = ["."]
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -181,7 +187,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
+  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"

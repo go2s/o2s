@@ -5,17 +5,100 @@
 package o2
 
 import (
-	"net/http"
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/server"
 	"gopkg.in/oauth2.v3"
 
 	"github.com/go2s/o2x"
-	"gopkg.in/session.v2"
-	"context"
+	"net/http"
+	oauth2Error "gopkg.in/oauth2.v3/errors"
+	"github.com/golang/glog"
+	"encoding/json"
 )
 
-type HandleMapper func(method, pattern string, handler func(w http.ResponseWriter, r *http.Request))
+type Oauth2Server struct {
+	*server.Server
+}
+
+// NewServer create authorization server
+func NewServer(cfg *server.Config, manager oauth2.Manager) *Oauth2Server {
+	svr := server.NewServer(cfg, manager)
+	o2svr := &Oauth2Server{
+		svr,
+	}
+
+	return o2svr
+}
+
+// ValidationTokenRequest the token request validation, add user client scope validation
+func (s *Oauth2Server) ValidationTokenRequest(r *http.Request) (gt oauth2.GrantType, tgr *oauth2.TokenGenerateRequest, err error) {
+	gt, tgr, err = s.Server.ValidationTokenRequest(r)
+	if err != nil {
+		return
+	}
+
+	if gt != oauth2.PasswordCredentials || tgr.Scope == "" {
+		return
+	}
+
+	user, err := oauth2UserStore.Find(tgr.UserID)
+	if err != nil {
+		return
+	}
+	scope, ok := user.GetScopes()[tgr.ClientID]
+	if ok && o2x.ScopeContains(scope, tgr.Scope) {
+		return
+	}
+	glog.Errorf("the scope of user [%v] for client [%v] is [%v], but request [%v]", tgr.UserID, tgr.ClientID, scope, tgr.Scope)
+	err = oauth2Error.ErrInvalidScope
+	return
+}
+
+// HandleTokenRequest token request handling
+func (s *Oauth2Server) HandleTokenRequest(w http.ResponseWriter, r *http.Request) (err error) {
+	gt, tgr, verr := s.ValidationTokenRequest(r)
+	if verr != nil {
+		err = s.tokenError(w, verr)
+		return
+	}
+
+	ti, verr := s.GetAccessToken(gt, tgr)
+	if verr != nil {
+		err = s.tokenError(w, verr)
+		return
+	}
+
+	err = s.token(w, s.GetTokenData(ti), nil)
+	return
+}
+
+// override Server.tokenError
+func (s *Oauth2Server) tokenError(w http.ResponseWriter, err error) (uerr error) {
+	data, statusCode, header := s.GetErrorData(err)
+
+	uerr = s.token(w, data, header, statusCode)
+	return
+}
+
+// override Server.token
+func (s *Oauth2Server) token(w http.ResponseWriter, data map[string]interface{}, header http.Header, statusCode ...int) (err error) {
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
+
+	for key := range header {
+		w.Header().Set(key, header.Get(key))
+	}
+
+	status := http.StatusOK
+	if len(statusCode) > 0 && statusCode[0] > 0 {
+		status = statusCode[0]
+	}
+
+	w.WriteHeader(status)
+	err = json.NewEncoder(w).Encode(data)
+	return
+}
 
 // ---------------------------
 func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserStore, as o2x.AuthStore, cfg *ServerConfig, mapper HandleMapper) {
@@ -43,7 +126,7 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 
 	DefaultTokenConfig(oauth2Mgr)
 
-	oauth2Svr = server.NewServer(&server.Config{
+	oauth2Svr = NewServer(&server.Config{
 		TokenType:            "Bearer",
 		AllowedResponseTypes: []oauth2.ResponseType{oauth2.Code, oauth2.Token},
 		AllowedGrantTypes: []oauth2.GrantType{
@@ -61,135 +144,7 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	oauth2Svr.SetUserAuthorizationHandler(userAuthorizeHandler)
 	oauth2Svr.SetInternalErrorHandler(InternalErrorHandler)
 	oauth2Svr.SetResponseErrorHandler(ResponseErrorHandler)
-}
-
-func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
-	if cfg != nil {
-		oauth2Cfg = cfg
-	} else {
-		oauth2Cfg = DefaultServerConfig()
-	}
-
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriIndex, IndexHandler)
-
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriLogin, LoginHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriLogin, LoginHandler)
-
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriAuth, AuthHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriAuth, AuthHandler)
-
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriAuthorize, AuthorizeRequestHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriAuthorize, AuthorizeRequestHandler)
-
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriToken, TokenRequestHandler)
-
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
-
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserAdd, AddUserHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserRemove, RemoveUserHandler)
-
-	InitTemplate()
-}
-
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	store, err := session.Start(context.Background(), w, r)
-	if err != nil {
-		redirectToLogin(w, r)
-		return
-	}
-	u, _ := store.Get(SessionUserID)
-	if u == nil {
-		redirectToLogin(w, r)
-		return
-	}
-	userID := u.(string)
-	m := map[string]interface{}{
-		"user_id": userID,
-	}
-	execIndexTemplate(w, r, m)
-}
-
-func TokenRequestHandler(w http.ResponseWriter, r *http.Request) {
-	err := oauth2Svr.HandleTokenRequest(w, r)
-	if err != nil {
-		errorResponse(w, err, http.StatusBadRequest)
-	}
-	return
-}
-
-func CheckUserAuth(w http.ResponseWriter, r *http.Request) (authorized bool, err error) {
-	userID, err := oauth2Svr.UserAuthorizationHandler(w, r)
-	if err != nil {
-		return
-	} else if userID == "" {
-		return false, nil
-	}
-
-	clientID := clientID(r)
-	scope := scope(r)
-
-	if clientID != "" && scope != "" {
-		authorized = oauth2AuthStore.Exist(&o2x.AuthModel{
-			ClientID: clientID,
-			UserID:   userID,
-			Scope:    scope,
-		})
-		return
-	}
-	return false, nil
-}
-
-func AuthorizeRequestHandler(w http.ResponseWriter, r *http.Request) {
-	authorized, err := CheckUserAuth(w, r)
-	if err != nil || !authorized {
-		redirectToAuth(w, r)
-		return
-	}
-
-	if !multipleUserTokenEnable && o2xTokenAccountSupport && o2xTokenStore != nil {
-		responseType := responseType(r)
-		if responseType == "token" {
-			removeAuthToken(w, r)
-		}
-	}
-
-	err = oauth2Svr.HandleAuthorizeRequest(w, r)
-	if err != nil {
-		errorResponse(w, err, http.StatusInternalServerError)
-	}
-}
-
-func removeAuthToken(w http.ResponseWriter, r *http.Request) {
-	clientID := clientID(r)
-	if clientID == "" {
-		return
-	}
-	store, err := session.Start(context.Background(), w, r)
-	if err != nil {
-		return
-	}
-	u, _ := store.Get(SessionUserID)
-	if u == nil {
-		return
-	}
-	userID := u.(string)
-
-	o2xTokenStore.RemoveByAccount(userID, clientID)
-}
-
-func BearerTokenValidator(w http.ResponseWriter, r *http.Request) {
-	tg, validErr := oauth2Svr.ValidationBearerToken(r)
-	if validErr != nil {
-		errorResponse(w, validErr, http.StatusUnauthorized)
-		return
-	}
-
-	data := &o2x.ValidResponse{
-		ClientID: tg.GetClientID(),
-		UserID:   tg.GetUserID(),
-		Scope:    tg.GetScope(),
-	}
-
-	response(w, data, http.StatusOK)
+	oauth2Svr.SetClientScopeHandler(ClientScopeHandler)
+	oauth2Svr.SetRefreshingScopeHandler(RefreshingScopeHandler)
+	oauth2Svr.SetAuthorizeScopeHandler(AuthorizeScopeHandler)
 }
