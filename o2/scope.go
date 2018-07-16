@@ -10,6 +10,10 @@ import (
 
 // ClientScopeHandler check the client allows to use scope
 func ClientScopeHandler(clientID, scope string) (allowed bool, err error) {
+	if scope == "" {
+		allowed = true
+		return
+	}
 	cli, err := oauth2ClientStore.GetByID(clientID)
 	if err != nil {
 		return
