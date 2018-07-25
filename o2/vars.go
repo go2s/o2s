@@ -21,6 +21,8 @@ const (
 	oauth2UriValid      = "/valid"
 	oauth2UriUserAdd    = "/user"
 	oauth2UriUserRemove = "/user/remove"
+	oauth2UriUserPass   = "/user/pass"
+	oauth2UriCaptcha    = "/captcha"
 )
 
 // ---------------------------
@@ -64,6 +66,11 @@ var oauth2ClientStore oauth2.ClientStore
 var oauth2TokenStore oauth2.TokenStore
 var oauth2UserStore o2x.UserStore
 var oauth2AuthStore o2x.AuthStore
+var oauth2CaptchaStore o2x.CaptchaStore
+
+// ---------------------------
+var o2xCaptchaAuthEnable = false
+var oauth2CaptchaSender CaptchaSender
 
 // ---------------------------
 // whether the token store support account management

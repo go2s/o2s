@@ -118,3 +118,41 @@ func RemoveUser(clientID, username string) (err error) {
 	}
 	return
 }
+
+// update password handler
+func UpdatePwdHandler(w http.ResponseWriter, r *http.Request) {
+	clientID, err := ClientBasicAuth(r)
+	if err != nil {
+		return
+	}
+	username := username(r)
+	password := password(r)
+	if anyNil(username, password, password) {
+		err = o2x.ErrValueRequired
+		return
+	}
+
+	err = UpdatePwd(clientID, username, password)
+	if err != nil {
+		data, statusCode, _ := oauth2Svr.GetErrorData(err)
+		response(w, data, statusCode)
+		return
+	}
+
+	response(w, defaultSuccessResponse(), http.StatusOK)
+	return
+}
+
+// update password
+func UpdatePwd(clientID, username, newpassword string) (err error) {
+	glog.Infof("client %v update password of user %v", clientID, username)
+	u, err := oauth2UserStore.Find(username)
+	if err != nil {
+		return
+	}
+	err = oauth2UserStore.UpdatePwd(u.GetUserID(), newpassword)
+	if err != nil {
+		return
+	}
+	return
+}

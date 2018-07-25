@@ -12,6 +12,8 @@ import (
 	"github.com/go2s/o2x"
 	"github.com/go2s/o2m"
 	"github.com/golang/glog"
+	"time"
+	"flag"
 )
 
 const (
@@ -32,6 +34,9 @@ func HandleHttp(method, pattern string, handler func(w http.ResponseWriter, r *h
 }
 
 func main() {
+	flag.Parse()
+	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
+
 	ts, err := store.NewMemoryTokenStore()
 	if err != nil {
 		panic(err)
@@ -44,13 +49,19 @@ func main() {
 	cfg.ServerName = "Test Memory Oauth2 Server"
 	cfg.TemplatePrefix = "../template/"
 
-	o2.InitOauth2Server(cs, ts, us, as, cfg, HandleHttp)
+	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, HandleHttp)
+
+	mcs, err := o2x.NewMemoryCaptchaStore(time.Minute * 5)
+	if err != nil {
+		panic(err)
+	}
+	svr.EnableCaptchaAuth(mcs, o2.CaptchaLogSender)
 
 	DemoClient(cs)
 	DemoUser(us)
 
-	log.Println("oauth2 server start on ", Oauth2ListenAddr)
-	log.Fatal(http.ListenAndServe(Oauth2ListenAddr, nil))
+	glog.Info("oauth2 server start on ", Oauth2ListenAddr)
+	glog.Fatal(http.ListenAndServe(Oauth2ListenAddr, nil))
 }
 
 func DemoClient(cs o2x.Oauth2ClientStore) {
@@ -69,8 +80,9 @@ func DemoUser(us o2x.UserStore) {
 		UserID: "u1",
 	}
 	u.SetRawPassword("123456")
+	u.Mobile = "13344556677"
 	err := us.Save(u)
 	if err != nil {
-		log.Printf("create demo user error: %v\n", err)
+		glog.Infof("create demo user error: %v", err)
 	}
 }

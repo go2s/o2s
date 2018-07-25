@@ -12,8 +12,11 @@ import (
 	"github.com/go2s/o2s/o2"
 	"github.com/go2s/o2m"
 	"gopkg.in/mgo.v2"
+	"github.com/golang/glog"
 	"flag"
-	"log"
+	"time"
+	"github.com/go2s/o2r"
+	"github.com/go-redis/redis"
 )
 
 var (
@@ -39,6 +42,10 @@ var mgoCfg o2m.MongoConfig
 var mgoSession *mgo.Session
 
 func main() {
+	flag.BoolVar(&lambdaMode, "lambda", true, "lambda mode enable")
+	flag.Parse()
+	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
+
 	mgoCfg = o2m.MongoConfig{
 		Addrs:     mgoAddrs,
 		Database:  mgoDatabase,
@@ -61,20 +68,24 @@ func main() {
 	cfg.ServerName = "Lambda Oauth2 Server"
 	cfg.TemplatePrefix = "../template/"
 
-	o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
+	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
+	redisOptions := &redis.Options{
+		Addr: "127.0.0.1:6379",
+	}
+	mcs, err := o2r.NewRedisCaptchaStore(redisOptions, time.Minute*5)
+	if err != nil {
+		panic(err)
+	}
+	svr.EnableCaptchaAuth(mcs, o2.CaptchaLogSender)
 
 	initSession()
 
-	flag.BoolVar(&lambdaMode, "lambda", true, "lambda mode enable")
-	flag.Parse()
-	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
-
 	if lambdaMode {
-		log.Println("lambda mode oauth2 server")
+		glog.Info("lambda mode oauth2 server")
 		cfg.UriPrefix = "/" + LambdaStaging
 		lambda.Start(handleRequest)
 	} else {
-		log.Println("gin mode oauth2 server")
+		glog.Info("gin mode oauth2 server")
 		e := engine.GetGinEngine()
 		e.Run(":9096")
 	}

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"html/template"
 	"path/filepath"
-	"log"
+	"github.com/golang/glog"
 )
 
 var loginTemplate *template.Template
@@ -38,7 +38,7 @@ func initPageTemplate(layout string, filename string) *template.Template {
 		panic(err)
 		return nil
 	}
-	log.Printf("load file:%v,%v ; template:%v\n", layout, page, t.DefinedTemplates())
+	glog.Infof("load file:%v,%v ; template:%v", layout, page, t.DefinedTemplates())
 	return t
 }
 
@@ -73,7 +73,7 @@ func execTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Template
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err := tpl.ExecuteTemplate(w, name, data)
 	if err != nil {
-		log.Printf("The template %s exec error:%v\n", name, err)
+		glog.Infof("The template %s exec error:%v", name, err)
 		errorResponse(w, err, http.StatusInternalServerError)
 	}
 }

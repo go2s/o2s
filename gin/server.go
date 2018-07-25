@@ -6,11 +6,12 @@ package main
 
 import (
 	"github.com/go2s/o2s/o2"
-	"log"
 	"github.com/go2s/o2s/engine"
 	"github.com/go2s/o2x"
 	"github.com/go2s/o2r"
 	"github.com/go-redis/redis"
+	"github.com/golang/glog"
+	"time"
 )
 
 const (
@@ -41,9 +42,15 @@ func main() {
 	cfg.ServerName = "Test Gin Oauth2 Server"
 	cfg.TemplatePrefix = "../template/"
 
-	o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
+	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
+
+	mcs, err := o2x.NewMemoryCaptchaStore(time.Minute * 5)
+	if err != nil {
+		panic(err)
+	}
+	svr.EnableCaptchaAuth(mcs, o2.CaptchaLogSender)
 
 	engine := engine.GetGinEngine()
 	engine.Run(Oauth2ListenAddr)
-	log.Println("oauth2 server start on ", Oauth2ListenAddr)
+	glog.Info("oauth2 server start on ", Oauth2ListenAddr)
 }
