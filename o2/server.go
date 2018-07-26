@@ -20,6 +20,20 @@ type Oauth2Server struct {
 	*server.Server
 	mapper HandleMapper
 	cfg    *ServerConfig
+
+	clientStore oauth2.ClientStore
+	tokenStore  oauth2.TokenStore
+	userStore   o2x.UserStore
+	authStore   o2x.AuthStore
+
+	// ---------------------------
+	// whether the token store support account management
+	o2xTokenAccountSupport bool
+	o2xTokenStore          o2x.O2TokenStore
+
+	// ---------------------------
+	// enable to create multiple token for one user of a client
+	multipleUserTokenEnable bool
 }
 
 // NewServer create authorization server
@@ -32,60 +46,24 @@ func NewServer(cfg *server.Config, manager oauth2.Manager) *Oauth2Server {
 	return o2svr
 }
 
-// validate captcha token request
-func (s *Oauth2Server) ValidationCaptchaTokenRequest(r *http.Request) (gt oauth2.GrantType, tgr *oauth2.TokenGenerateRequest, err error) {
-	if !o2xCaptchaAuthEnable {
-		err = oauth2Error.ErrUnsupportedGrantType
-		return
-	}
+func (s *Oauth2Server) GetUserStore() o2x.UserStore {
+	return s.userStore
+}
 
-	// set the grant_type=password so that the oauth2 framework cant recognize it
-	gt = oauth2.PasswordCredentials
+func (s *Oauth2Server) EnableMultipleUserToken() {
+	s.multipleUserTokenEnable = true
+}
 
-	mobile := r.FormValue("mobile")
-	captcha := r.FormValue("captcha")
-	if mobile == "" || captcha == "" {
-		err = oauth2Error.ErrInvalidRequest
-		return
-	}
-	valid, err := oauth2CaptchaStore.Valid(mobile, captcha)
-	if err != nil {
-		return
-	}
-	if !valid {
-		err = o2x.ErrInvalidCaptcha
-		return
-	}
-
-	clientID, clientSecret, err := s.ClientInfoHandler(r)
-	if err != nil {
-		return
-	}
-
-	tgr = &oauth2.TokenGenerateRequest{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-	}
-	tgr.Scope = r.FormValue("scope")
-
-	user, verr := oauth2UserStore.FindMobile(mobile)
-	if verr != nil {
-		err = verr
-		return
-	} else if user == nil {
-		err = oauth2Error.ErrInvalidGrant
-		return
-	}
-
-	tgr.UserID = user.GetID()
-	return
+func (s *Oauth2Server) DisableMultipleUserToken() {
+	s.multipleUserTokenEnable = false
 }
 
 // ValidationTokenRequest the token request validation, add user client scope validation
 func (s *Oauth2Server) ValidationTokenRequest(r *http.Request) (gt oauth2.GrantType, tgr *oauth2.TokenGenerateRequest, err error) {
 	gt = oauth2.GrantType(r.FormValue("grant_type"))
-	if gt == o2x.Captcha {
-		gt, tgr, err = s.ValidationCaptchaTokenRequest(r)
+
+	if fn, ok := customGrantRequestValidatorMap[gt]; ok {
+		gt, tgr, err = fn(r)
 	} else {
 		gt, tgr, err = s.Server.ValidationTokenRequest(r)
 	}
@@ -94,11 +72,12 @@ func (s *Oauth2Server) ValidationTokenRequest(r *http.Request) (gt oauth2.GrantT
 		return
 	}
 
-	if (gt != oauth2.PasswordCredentials && gt != o2x.Captcha) || tgr.Scope == "" {
+	// check whether need scope check
+	if tgr.Scope == "" || gt != oauth2.PasswordCredentials {
 		return
 	}
 
-	user, err := oauth2UserStore.Find(tgr.UserID)
+	user, err := s.userStore.Find(tgr.UserID)
 	if err != nil {
 		return
 	}
@@ -157,15 +136,23 @@ func (s *Oauth2Server) token(w http.ResponseWriter, data map[string]interface{},
 	return
 }
 
-// enable captcha auth
-func (s *Oauth2Server) EnableCaptchaAuth(captchaStore o2x.CaptchaStore, sender CaptchaSender) {
-	oauth2CaptchaStore = captchaStore
-	oauth2CaptchaSender = sender
-	o2xCaptchaAuthEnable = true
+func (s *Oauth2Server) AddHandler(method, uri string, handler func(w http.ResponseWriter, r *http.Request)) {
+	s.mapper(method, s.cfg.UriContext+uri, handler)
+}
 
-	s.Config.AllowedGrantTypes = append(s.Config.AllowedGrantTypes, o2x.Captcha)
+func (s *Oauth2Server) AddCustomerGrantType(grantType oauth2.GrantType, validator GrantTypeRequestValidator, handleConfigurer HandleConfigurer) {
+	for _, t := range s.Config.AllowedGrantTypes {
+		if t == grantType {
+			panic("grant type already exist")
+		}
+	}
 
-	s.mapper(http.MethodPost, s.cfg.UriContext+oauth2UriCaptcha, SendCaptchaHandler)
+	s.Config.AllowedGrantTypes = append(s.Config.AllowedGrantTypes, grantType)
+	customGrantRequestValidatorMap[grantType] = validator
+
+	if handleConfigurer != nil {
+		handleConfigurer(s.AddHandler)
+	}
 }
 
 // ---------------------------
@@ -175,18 +162,7 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 		panic("store is nil")
 	}
 
-	oauth2ClientStore = cs
-	oauth2TokenStore = ts
-	oauth2UserStore = us
-	oauth2AuthStore = as
-
-	if oauth2AuthStore == nil {
-		oauth2AuthStore = o2x.NewAuthStore()
-	}
-
 	InitServerConfig(cfg, mapper)
-
-	o2xTokenStore, o2xTokenAccountSupport = ts.(o2x.Oauth2TokenStore)
 
 	oauth2Mgr = manage.NewDefaultManager()
 
@@ -207,6 +183,17 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 		},
 	}, oauth2Mgr)
 
+	oauth2Svr.clientStore = cs
+	oauth2Svr.tokenStore = ts
+	oauth2Svr.userStore = us
+
+	if as == nil {
+		as = o2x.NewAuthStore()
+	}
+	oauth2Svr.authStore = as
+
+	oauth2Svr.o2xTokenStore, oauth2Svr.o2xTokenAccountSupport = ts.(o2x.O2TokenStore)
+
 	// set mapper
 	oauth2Svr.mapper = mapper
 	// set cfg
@@ -219,6 +206,7 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	oauth2Svr.SetInternalErrorHandler(InternalErrorHandler)
 	oauth2Svr.SetResponseErrorHandler(ResponseErrorHandler)
 	oauth2Svr.SetClientScopeHandler(ClientScopeHandler)
+	oauth2Svr.SetClientAuthorizedHandler(ClientAuthorizedHandler)
 	oauth2Svr.SetRefreshingScopeHandler(RefreshingScopeHandler)
 	oauth2Svr.SetAuthorizeScopeHandler(AuthorizeScopeHandler)
 

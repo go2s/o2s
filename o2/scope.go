@@ -8,24 +8,6 @@ import (
 	"net/http"
 )
 
-// ClientScopeHandler check the client allows to use scope
-func ClientScopeHandler(clientID, scope string) (allowed bool, err error) {
-	if scope == "" {
-		allowed = true
-		return
-	}
-	cli, err := oauth2ClientStore.GetByID(clientID)
-	if err != nil {
-		return
-	}
-	if client, ok := cli.(o2x.Oauth2ClientInfo); ok {
-		allowed = o2x.ScopeContains(client.GetScope(), scope)
-		return
-	}
-	allowed = true
-	return
-}
-
 // RefreshingScopeHandler check the scope of the refreshing token
 func RefreshingScopeHandler(newScope, oldScope string) (allowed bool, err error) {
 	allowed = o2x.ScopeContains(oldScope, newScope)

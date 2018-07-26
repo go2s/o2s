@@ -11,6 +11,7 @@ import (
 )
 
 type HandleMapper func(method, pattern string, handler func(w http.ResponseWriter, r *http.Request))
+type HandleConfigurer func(mapper HandleMapper)
 
 func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
 	if cfg != nil {
@@ -63,7 +64,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 func TokenRequestHandler(w http.ResponseWriter, r *http.Request) {
 	err := oauth2Svr.HandleTokenRequest(w, r)
 	if err != nil {
-		errorResponse(w, err, http.StatusBadRequest)
+		ErrorResponse(w, err, http.StatusBadRequest)
 	}
 	return
 }
@@ -80,7 +81,7 @@ func CheckUserAuth(w http.ResponseWriter, r *http.Request) (authorized bool, err
 	scope := scope(r)
 
 	if clientID != "" && scope != "" {
-		authorized = oauth2AuthStore.Exist(&o2x.AuthModel{
+		authorized = oauth2Svr.authStore.Exist(&o2x.AuthModel{
 			ClientID: clientID,
 			UserID:   userID,
 			Scope:    scope,
@@ -97,7 +98,7 @@ func AuthorizeRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !multipleUserTokenEnable && o2xTokenAccountSupport && o2xTokenStore != nil {
+	if !oauth2Svr.multipleUserTokenEnable && oauth2Svr.o2xTokenAccountSupport && oauth2Svr.tokenStore != nil {
 		responseType := responseType(r)
 		if responseType == "token" {
 			removeAuthToken(w, r)
@@ -106,7 +107,7 @@ func AuthorizeRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = oauth2Svr.HandleAuthorizeRequest(w, r)
 	if err != nil {
-		errorResponse(w, err, http.StatusInternalServerError)
+		ErrorResponse(w, err, http.StatusInternalServerError)
 	}
 }
 
@@ -125,13 +126,13 @@ func removeAuthToken(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := u.(string)
 
-	o2xTokenStore.RemoveByAccount(userID, clientID)
+	oauth2Svr.o2xTokenStore.RemoveByAccount(userID, clientID)
 }
 
 func BearerTokenValidator(w http.ResponseWriter, r *http.Request) {
 	tg, validErr := oauth2Svr.ValidationBearerToken(r)
 	if validErr != nil {
-		errorResponse(w, validErr, http.StatusUnauthorized)
+		ErrorResponse(w, validErr, http.StatusUnauthorized)
 		return
 	}
 
@@ -141,5 +142,5 @@ func BearerTokenValidator(w http.ResponseWriter, r *http.Request) {
 		Scope:    tg.GetScope(),
 	}
 
-	response(w, data, http.StatusOK)
+	HttpResponse(w, data, http.StatusOK)
 }

@@ -55,26 +55,26 @@
     "internal/singleflight",
     "internal/util"
   ]
-  revision = "83fb42932f6145ce52df09860384a4653d2d332a"
-  version = "v6.12.0"
+  revision = "480db94d33e6088e08d628833b6c0705451d24bb"
+  version = "v6.13.2"
 
 [[projects]]
   branch = "master"
   name = "github.com/go2s/o2m"
   packages = ["."]
-  revision = "8dafdafa1ee5849c95ad0e0bd393759c149d0c8b"
+  revision = "396682dbbc3f324054464d8d49eee664c5b3696d"
 
 [[projects]]
   branch = "master"
   name = "github.com/go2s/o2r"
   packages = ["."]
-  revision = "ed2f4c31069589eae35ef7100295a7b3bec6da1f"
+  revision = "f646a01481f5ce3cc66e4d9f3cdcb0a12a9f5cc6"
 
 [[projects]]
   branch = "master"
   name = "github.com/go2s/o2x"
   packages = ["."]
-  revision = "5fbe4cc0975809945554014995c1f22dc2520d6c"
+  revision = "8a9505d5f79e6fbdf87bd801ea56471f5c2f395b"
 
 [[projects]]
   branch = "master"
@@ -181,13 +181,13 @@
     "pbkdf2",
     "scrypt"
   ]
-  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
+  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
+  revision = "e072cadbbdc8dd3d3ffa82b8b4b9304c261d9311"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"
@@ -224,8 +224,8 @@
     "server",
     "store"
   ]
-  revision = "6f608a6e0307a97455db74fa5297fd38cb249aa7"
-  version = "v3.8.4"
+  revision = "196a0236d070cac5c2db1fd5cef194ffcf81f676"
+  version = "v3.8.5"
 
 [[projects]]
   name = "gopkg.in/session.v2"

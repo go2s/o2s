@@ -17,6 +17,7 @@ import (
 	"time"
 	"github.com/go2s/o2r"
 	"github.com/go-redis/redis"
+	"github.com/go2s/o2s/captcha"
 )
 
 var (
@@ -76,7 +77,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	svr.EnableCaptchaAuth(mcs, o2.CaptchaLogSender)
+	captcha.EnableCaptchaAuth(svr, mcs, captcha.CaptchaLogSender)
 
 	initSession()
 

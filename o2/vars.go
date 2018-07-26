@@ -6,7 +6,6 @@ package o2
 
 import (
 	"gopkg.in/oauth2.v3/manage"
-	"gopkg.in/oauth2.v3"
 	"github.com/go2s/o2x"
 )
 
@@ -22,7 +21,6 @@ const (
 	oauth2UriUserAdd    = "/user"
 	oauth2UriUserRemove = "/user/remove"
 	oauth2UriUserPass   = "/user/pass"
-	oauth2UriCaptcha    = "/captcha"
 )
 
 // ---------------------------
@@ -59,32 +57,4 @@ func GetOauth2Svr() *Oauth2Server {
 // expose for custom configuration
 func GetOauth2Mgr() *manage.Manager {
 	return oauth2Mgr
-}
-
-// ---------------------------
-var oauth2ClientStore oauth2.ClientStore
-var oauth2TokenStore oauth2.TokenStore
-var oauth2UserStore o2x.UserStore
-var oauth2AuthStore o2x.AuthStore
-var oauth2CaptchaStore o2x.CaptchaStore
-
-// ---------------------------
-var o2xCaptchaAuthEnable = false
-var oauth2CaptchaSender CaptchaSender
-
-// ---------------------------
-// whether the token store support account management
-var o2xTokenAccountSupport = false
-var o2xTokenStore o2x.Oauth2TokenStore
-
-// ---------------------------
-// enable to create multiple token for one user of a client
-var multipleUserTokenEnable = false
-
-func EnableMultipleUserToken() {
-	multipleUserTokenEnable = true
-}
-
-func DisableMultipleUserToken() {
-	multipleUserTokenEnable = false
 }

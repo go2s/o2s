@@ -72,11 +72,11 @@ func redirectToUri(w http.ResponseWriter, r *http.Request, uri string, query str
 	w.WriteHeader(http.StatusFound)
 }
 
-func errorResponse(w http.ResponseWriter, err error, status int) {
-	response(w, defaultErrorResponse(err), status)
+func ErrorResponse(w http.ResponseWriter, err error, status int) {
+	HttpResponse(w, defaultErrorResponse(err), status)
 }
 
-func response(w http.ResponseWriter, data interface{}, status int) {
+func HttpResponse(w http.ResponseWriter, data interface{}, status int) {
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Pragma", "no-cache")

@@ -27,7 +27,7 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 }
 
 func PasswordAuthorizationHandler(username, password string) (userID string, err error) {
-	u, err := oauth2UserStore.Find(username)
+	u, err := oauth2Svr.userStore.Find(username)
 	if err != nil {
 		return
 	}
@@ -55,16 +55,16 @@ func AddUserHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		data, statusCode, _ := oauth2Svr.GetErrorData(err)
 		data["user_id"] = username
-		response(w, data, statusCode)
+		HttpResponse(w, data, statusCode)
 		return
 	}
-	response(w, defaultSuccessResponse(), http.StatusOK)
+	HttpResponse(w, defaultSuccessResponse(), http.StatusOK)
 	return
 }
 
 // add new user
 func AddUser(clientID, username, password string) (err error) {
-	u, err := oauth2UserStore.Find(username)
+	u, err := oauth2Svr.userStore.Find(username)
 	if err != nil && err != o2x.ErrNotFound {
 		return
 	}
@@ -79,7 +79,7 @@ func AddUser(clientID, username, password string) (err error) {
 	user.SetRawPassword(password)
 
 	glog.Infof("client %v add user %v", clientID, username)
-	err = oauth2UserStore.Save(user)
+	err = oauth2Svr.userStore.Save(user)
 	if err != nil {
 		return
 	}
@@ -101,18 +101,18 @@ func RemoveUserHandler(w http.ResponseWriter, r *http.Request) {
 	err = RemoveUser(clientID, username)
 	if err != nil {
 		data, statusCode, _ := oauth2Svr.GetErrorData(err)
-		response(w, data, statusCode)
+		HttpResponse(w, data, statusCode)
 		return
 	}
 
-	response(w, defaultSuccessResponse(), http.StatusOK)
+	HttpResponse(w, defaultSuccessResponse(), http.StatusOK)
 	return
 }
 
 // remove a user
 func RemoveUser(clientID, username string) (err error) {
 	glog.Infof("client %v remove user %v", clientID, username)
-	err = oauth2UserStore.Remove(username)
+	err = oauth2Svr.userStore.Remove(username)
 	if err != nil {
 		return
 	}
@@ -135,22 +135,22 @@ func UpdatePwdHandler(w http.ResponseWriter, r *http.Request) {
 	err = UpdatePwd(clientID, username, password)
 	if err != nil {
 		data, statusCode, _ := oauth2Svr.GetErrorData(err)
-		response(w, data, statusCode)
+		HttpResponse(w, data, statusCode)
 		return
 	}
 
-	response(w, defaultSuccessResponse(), http.StatusOK)
+	HttpResponse(w, defaultSuccessResponse(), http.StatusOK)
 	return
 }
 
 // update password
 func UpdatePwd(clientID, username, newpassword string) (err error) {
 	glog.Infof("client %v update password of user %v", clientID, username)
-	u, err := oauth2UserStore.Find(username)
+	u, err := oauth2Svr.userStore.Find(username)
 	if err != nil {
 		return
 	}
-	err = oauth2UserStore.UpdatePwd(u.GetUserID(), newpassword)
+	err = oauth2Svr.userStore.UpdatePwd(u.GetUserID(), newpassword)
 	if err != nil {
 		return
 	}

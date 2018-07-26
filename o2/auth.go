@@ -15,7 +15,7 @@ import (
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(context.Background(), w, r)
 	if err != nil {
-		errorResponse(w, err, http.StatusInternalServerError)
+		ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 	uid, _ := store.Get(SessionUserID)
@@ -32,14 +32,14 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 		UserID:   uid.(string),
 		Scope:    scope,
 	}
-	exists := oauth2AuthStore.Exist(auth)
+	exists := oauth2Svr.authStore.Exist(auth)
 	if exists {
 		redirectToAuthorize(w, r)
 		return
 	}
 
 	if r.Method == "POST" {
-		oauth2AuthStore.Save(auth)
+		oauth2Svr.authStore.Save(auth)
 		redirectToAuthorize(w, r)
 		return
 	}

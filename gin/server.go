@@ -12,6 +12,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/golang/glog"
 	"time"
+	"github.com/go2s/o2s/captcha"
 )
 
 const (
@@ -48,7 +49,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	svr.EnableCaptchaAuth(mcs, o2.CaptchaLogSender)
+	captcha.EnableCaptchaAuth(svr, mcs, captcha.CaptchaLogSender)
 
 	engine := engine.GetGinEngine()
 	engine.Run(Oauth2ListenAddr)

@@ -14,6 +14,7 @@ import (
 	"github.com/golang/glog"
 	"time"
 	"flag"
+	"github.com/go2s/o2s/captcha"
 )
 
 const (
@@ -55,7 +56,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	svr.EnableCaptchaAuth(mcs, o2.CaptchaLogSender)
+	captcha.EnableCaptchaAuth(svr, mcs, captcha.CaptchaLogSender)
 
 	DemoClient(cs)
 	DemoUser(us)
@@ -64,7 +65,7 @@ func main() {
 	glog.Fatal(http.ListenAndServe(Oauth2ListenAddr, nil))
 }
 
-func DemoClient(cs o2x.Oauth2ClientStore) {
+func DemoClient(cs o2x.O2ClientStore) {
 	err := cs.Set("000000", &o2m.Oauth2Client{
 		ID:     "000000",
 		Secret: "999999",

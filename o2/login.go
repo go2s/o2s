@@ -14,7 +14,7 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(context.Background(), w, r)
 	if err != nil {
-		errorResponse(w, err, http.StatusInternalServerError)
+		ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 

@@ -74,6 +74,6 @@ func execTemplate(w http.ResponseWriter, r *http.Request, tpl *template.Template
 	err := tpl.ExecuteTemplate(w, name, data)
 	if err != nil {
 		glog.Infof("The template %s exec error:%v", name, err)
-		errorResponse(w, err, http.StatusInternalServerError)
+		ErrorResponse(w, err, http.StatusInternalServerError)
 	}
 }
