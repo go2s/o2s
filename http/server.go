@@ -70,6 +70,7 @@ func DemoClient(cs o2x.O2ClientStore) {
 		ID:     "000000",
 		Secret: "999999",
 		Domain: "https://localhost",
+		Scopes: []string{"manage", "admin", "view", "read"},
 	})
 	if err != nil {
 		log.Printf("%v\n", err)

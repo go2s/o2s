@@ -21,6 +21,7 @@ const (
 	oauth2UriUserAdd    = "/user"
 	oauth2UriUserRemove = "/user/remove"
 	oauth2UriUserPass   = "/user/pass"
+	oauth2UriUserScope  = "/user/scope"
 )
 
 // ---------------------------

@@ -39,8 +39,9 @@ func ClientAuthorizedHandler(clientID string, grantType oauth2.GrantType) (allow
 					return true, nil
 				}
 			}
+			return false, nil
 		}
 	}
 
-	return
+	return true, nil
 }

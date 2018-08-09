@@ -37,10 +37,24 @@ func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
 	mapper(http.MethodPost, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
 
 	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserAdd, AddUserHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserRemove, RemoveUserHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserPass, UpdatePwdHandler)
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserRemove, HandleProcessor(RemoveUserProcessor))
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserPass, HandleProcessor(UpdatePwdProcessor))
+	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserScope, HandleProcessor(UpdateScopeProcessor))
 
 	InitTemplate()
+}
+
+func HandleProcessor(processor func(w http.ResponseWriter, r *http.Request) (error)) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := processor(w, r)
+		if err != nil {
+			data, statusCode, _ := oauth2Svr.GetErrorData(err)
+			HttpResponse(w, data, statusCode)
+			return
+		}
+		HttpResponse(w, defaultSuccessResponse(), http.StatusOK)
+		return
+	}
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
