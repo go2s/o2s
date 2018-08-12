@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:29401894b0873ce84bca18ddb3d614300851999478cc2ce4de6fe473db4842b6"
+  digest = "1:c64cf9c8010d23098d475f6434bdeb8f96dedeadf886a74e5dd3255b486d26a4"
   name = "github.com/aws/aws-lambda-go"
   packages = [
     "events",
@@ -11,8 +11,8 @@
     "lambdacontext",
   ]
   pruneopts = ""
-  revision = "4d30d0ff60440c2d0480a15747c96ee71c3c53d4"
-  version = "v1.2.0"
+  revision = "e630af386f8aad6ec9fc899b951cf62d37cfe56f"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -72,11 +72,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:34cb19270a34c6888d2bd7c2afa910de4888d7ca2b9074f551048992767d899a"
+  digest = "1:fdc467859d5904a689111e839e9d825ad05384c92a12052d9a558b1178ad75a8"
   name = "github.com/go2s/o2m"
   packages = ["."]
   pruneopts = ""
-  revision = "396682dbbc3f324054464d8d49eee664c5b3696d"
+  revision = "c6d3d148cd18cea441744b68060afeea7ed5683d"
 
 [[projects]]
   branch = "master"
@@ -88,11 +88,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b857920478e917c141ae09e201e29bfa9cb16962304e49e59e4e22f7232ad690"
+  digest = "1:c1fbc7aae5cd68c8e74162c1d4e542625508f8e370e717fb235593c78fd7e49d"
   name = "github.com/go2s/o2x"
   packages = ["."]
   pruneopts = ""
-  revision = "8a9505d5f79e6fbdf87bd801ea56471f5c2f395b"
+  revision = "c8c73af6966313b1f0555ae51595f9f2cbc3c28e"
 
 [[projects]]
   branch = "master"
@@ -111,12 +111,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:53ac4e911e12dde0ab68655e2006449d207a5a681f084974da2b06e5dbeaca72"
+  digest = "1:b79fc583e4dc7055ed86742e22164ac41bf8c0940722dbcb600f1a3ace1a8cb5"
   name = "github.com/json-iterator/go"
   packages = ["."]
   pruneopts = ""
-  revision = "ab8a2e0c74be9d3be70b3184d9acc634935ded82"
-  version = "1.1.4"
+  revision = "1624edc4454b8682399def8740d46db5e4362ba4"
+  version = "1.1.5"
 
 [[projects]]
   digest = "1:78229b46ddb7434f881390029bd1af7661294af31f6802e0e1bedaad4ab0af3c"
@@ -174,12 +174,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:e139a0dfe24e723193005b291ed82a975041718cfcab9136aa6c9540df70a4ff"
+  digest = "1:3ddca2bd5496c6922a2a9e636530e178a43c2a534ea6634211acdc7d10222794"
   name = "github.com/tidwall/gjson"
   packages = ["."]
   pruneopts = ""
-  revision = "f123b340873a0084cb27267eddd8ff615115fbff"
-  version = "v1.1.2"
+  revision = "1e3f6aeaa5bad08d777ea7807b279a07885dd8b2"
+  version = "v1.1.3"
 
 [[projects]]
   branch = "master"
@@ -226,22 +226,22 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cae234a803b78380e4d769db6036b9fcc8c08ed4ff862571ffc1a958edc1f629"
+  digest = "1:4cae11053a5fc8e7b08228fcc14d161d3e60b64ba508a8b216937da472690991"
   name = "golang.org/x/crypto"
   packages = [
     "pbkdf2",
     "scrypt",
   ]
   pruneopts = ""
-  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
+  revision = "de0752318171da717af4ce24d0a2e8626afaeb11"
 
 [[projects]]
   branch = "master"
-  digest = "1:0e1506f3caef942bf9d08a91ebbe8bd87d263e7e440f8e0427b2f85b44eac3f7"
+  digest = "1:072dfe8c89af9499e94ba8174a3be40d1c217bc814662e57dda354e8fb47fac9"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "e072cadbbdc8dd3d3ffa82b8b4b9304c261d9311"
+  revision = "98c5dad5d1a0e8a73845ecc8897d0bd56586511d"
 
 [[projects]]
   digest = "1:dd549e360e5a8f982a28c2bcbe667307ceffe538ed9afc7c965524f1ac285b3f"
