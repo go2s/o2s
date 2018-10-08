@@ -4,10 +4,11 @@
 package o2
 
 import (
-	"net/http"
-	"gopkg.in/session.v2"
-	"github.com/go2s/o2x"
 	"context"
+	"net/http"
+
+	"github.com/go2s/o2x"
+	"gopkg.in/session.v3"
 )
 
 type HandleMapper func(method, pattern string, handler func(w http.ResponseWriter, r *http.Request))
@@ -44,7 +45,7 @@ func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
 	InitTemplate()
 }
 
-func HandleProcessor(processor func(w http.ResponseWriter, r *http.Request) (error)) func(w http.ResponseWriter, r *http.Request) {
+func HandleProcessor(processor func(w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := processor(w, r)
 		if err != nil {

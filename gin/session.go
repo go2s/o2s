@@ -5,8 +5,8 @@
 package main
 
 import (
-	"gopkg.in/session.v2"
-	"gopkg.in/go-session/redis.v1"
+	"github.com/go-session/redis"
+	"github.com/go-session/session"
 )
 
 func init() {

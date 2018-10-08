@@ -5,11 +5,12 @@
 package o2
 
 import (
-	"net/http"
-	"gopkg.in/session.v2"
 	"context"
+	"net/http"
+
 	"github.com/go2s/o2x"
 	"github.com/golang/glog"
+	"gopkg.in/session.v3"
 
 	oauth2Error "gopkg.in/oauth2.v3/errors"
 )

@@ -80,6 +80,9 @@ func DemoClient(cs o2x.O2ClientStore) {
 func DemoUser(us o2x.UserStore) {
 	u := &o2x.SimpleUser{
 		UserID: "u1",
+		Scopes: map[string]string{
+			"000000": "admin,manage",
+		},
 	}
 	u.SetRawPassword("123456")
 	u.Mobile = "13344556677"

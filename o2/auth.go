@@ -5,11 +5,12 @@
 package o2
 
 import (
-	"net/http"
-	"gopkg.in/session.v2"
 	"context"
+	"net/http"
+
 	"github.com/go2s/o2x"
 	oauth2Errors "gopkg.in/oauth2.v3/errors"
+	"gopkg.in/session.v3"
 )
 
 func AuthHandler(w http.ResponseWriter, r *http.Request) {

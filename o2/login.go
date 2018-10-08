@@ -5,10 +5,11 @@
 package o2
 
 import (
-	"net/http"
-	"gopkg.in/session.v2"
 	"context"
 	"log"
+	"net/http"
+
+	"gopkg.in/session.v3"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
