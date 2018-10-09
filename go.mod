@@ -2,15 +2,15 @@ module github.com/go2s/o2s
 
 require (
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
-	github.com/aws/aws-lambda-go v1.4.0
+	github.com/aws/aws-lambda-go v1.6.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.0.0-20180713153304-3a4d35011e4a
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fatih/structs v1.0.0 // indirect
 	github.com/gavv/httpexpect v0.0.0-20180803094507-bdde30871313 // indirect
 	github.com/gavv/monotime v0.0.0-20171021193802-6f8212e8d10d // indirect
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
-	github.com/gin-gonic/gin v0.0.0-20170702092826-d459835d2b07
-	github.com/go-redis/redis v6.13.2+incompatible
+	github.com/gin-gonic/gin v1.3.0
+	github.com/go-redis/redis v6.14.1+incompatible
 	github.com/go-session/redis v3.0.0+incompatible
 	github.com/go-session/session v3.0.3+incompatible
 	github.com/go2s/o2m v1.1.3-0.20181008082921-2ab5728d7c16
@@ -22,10 +22,11 @@ require (
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
+	github.com/kr/pty v1.1.3 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
-	github.com/mattn/go-isatty v0.0.3 // indirect
+	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/moul/http2curl v0.0.0-20170919181001-9ac6cf4d929b // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
@@ -47,6 +48,7 @@ require (
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	golang.org/x/net v0.0.0-20181005035420-146acd28ed58 // indirect
+	golang.org/x/sys v0.0.0-20181005133103-4497e2df6f9e // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
