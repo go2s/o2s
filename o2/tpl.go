@@ -5,9 +5,10 @@
 package o2
 
 import (
-	"net/http"
 	"html/template"
-	"path/filepath"
+	"net/http"
+
+	"github.com/go2s/o2s/tpl"
 	"github.com/golang/glog"
 )
 
@@ -15,44 +16,29 @@ var loginTemplate *template.Template
 var authTemplate *template.Template
 var indexTemplate *template.Template
 
-func InitTemplate() {
-	layout, err := oneFilePath("layout.html")
-	if err != nil || layout == "" {
-		panic("cant load template")
-		return
+func parse(name, content string) *template.Template {
+	t, err := template.New(name).Parse(content)
+	if err != nil || t == nil {
+		glog.Fatalf("can't load template %v", name)
 	}
+	return t
 
-	loginTemplate = initPageTemplate(layout, "login.html")
-	authTemplate = initPageTemplate(layout, "auth.html")
-	indexTemplate = initPageTemplate(layout, "index.html")
 }
-
-func initPageTemplate(layout string, filename string) *template.Template {
-	page, err := oneFilePath(filename)
-	if err != nil || page == "" {
-		panic("cant load template:" + filename)
-		return nil
+func templateParse(name, content string) *template.Template {
+	layout := parse("layout", tpl.Files["layout.html"])
+	t, err := layout.New(name).Parse(content)
+	if err != nil || t == nil {
+		glog.Fatalf("can't load template %v", name)
 	}
-	t, err := template.ParseFiles(layout, page)
-	if err != nil {
-		panic(err)
-		return nil
-	}
-	glog.Infof("load file:%v,%v ; template:%v", layout, page, t.DefinedTemplates())
 	return t
 }
 
-func oneFilePath(name string) (path string, err error) {
-	layouts, err := filepath.Glob(oauth2Cfg.TemplatePrefix + name)
-	if err != nil {
-		panic(err)
-		return
-	}
-	if len(layouts) > 0 {
-		path = layouts[0]
-		return
-	}
-	return
+//InitTemplate initial tempalte
+func InitTemplate() {
+	loginTemplate = templateParse("login", tpl.Files["login.html"])
+	authTemplate = templateParse("auth", tpl.Files["auth.html"])
+	indexTemplate = templateParse("index", tpl.Files["index.html"])
+
 }
 
 func execLoginTemplate(w http.ResponseWriter, r *http.Request, data map[string]interface{}) {

@@ -5,17 +5,19 @@
 package o2
 
 import (
+	"gopkg.in/oauth2.v3"
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/server"
-	"gopkg.in/oauth2.v3"
+
+	"encoding/json"
+	"net/http"
 
 	"github.com/go2s/o2x"
-	"net/http"
-	oauth2Error "gopkg.in/oauth2.v3/errors"
 	"github.com/golang/glog"
-	"encoding/json"
+	oauth2Error "gopkg.in/oauth2.v3/errors"
 )
 
+//Oauth2Server oauth2 server
 type Oauth2Server struct {
 	*server.Server
 	mapper HandleMapper
@@ -46,14 +48,17 @@ func NewServer(cfg *server.Config, manager oauth2.Manager) *Oauth2Server {
 	return o2svr
 }
 
+//GetUserStore get user store
 func (s *Oauth2Server) GetUserStore() o2x.UserStore {
 	return s.userStore
 }
 
+//EnableMultipleUserToken user can have multiple token one time
 func (s *Oauth2Server) EnableMultipleUserToken() {
 	s.multipleUserTokenEnable = true
 }
 
+//DisableMultipleUserToken user can have only one token one time
 func (s *Oauth2Server) DisableMultipleUserToken() {
 	s.multipleUserTokenEnable = false
 }
@@ -136,10 +141,12 @@ func (s *Oauth2Server) token(w http.ResponseWriter, data map[string]interface{},
 	return
 }
 
+//AddHandler add http handler
 func (s *Oauth2Server) AddHandler(method, uri string, handler func(w http.ResponseWriter, r *http.Request)) {
 	s.mapper(method, s.cfg.UriContext+uri, handler)
 }
 
+//AddCustomerGrantType add customer grant type
 func (s *Oauth2Server) AddCustomerGrantType(grantType oauth2.GrantType, validator GrantTypeRequestValidator, handleConfigurer HandleConfigurer) {
 	for _, t := range s.Config.AllowedGrantTypes {
 		if t == grantType {
@@ -155,7 +162,7 @@ func (s *Oauth2Server) AddCustomerGrantType(grantType oauth2.GrantType, validato
 	}
 }
 
-// ---------------------------
+//InitOauth2Server initial a oauth2 server with storage services
 func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserStore, as o2x.AuthStore,
 	cfg *ServerConfig, mapper HandleMapper) *Oauth2Server {
 	if cs == nil || ts == nil || us == nil {

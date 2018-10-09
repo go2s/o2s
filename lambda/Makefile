@@ -24,9 +24,6 @@ build-prod:
 
 zip:
 	$(RM) $(PACKAGE).zip
-	cp ../template/*.html .
-	zip $(PACKAGE).zip $(HANDLER) *.html
-	$(RM) *.html
 
 clean:
 	$(RM) $(HANDLER) $(PACKAGE).zip

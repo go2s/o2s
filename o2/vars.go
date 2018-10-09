@@ -5,11 +5,12 @@
 package o2
 
 import (
-	"gopkg.in/oauth2.v3/manage"
 	"github.com/go2s/o2x"
+	"gopkg.in/oauth2.v3/manage"
 )
 
 const (
+	//SessionUserID user id
 	SessionUserID = "UserID"
 
 	oauth2UriIndex      = "/index"
@@ -50,12 +51,12 @@ func defaultErrorResponse(err error) map[string]interface{} {
 	return data
 }
 
-// expose for custom configuration
+// GetOauth2Svr expose for custom configuration
 func GetOauth2Svr() *Oauth2Server {
 	return oauth2Svr
 }
 
-// expose for custom configuration
+// GetOauth2Mgr expose for custom configuration
 func GetOauth2Mgr() *manage.Manager {
 	return oauth2Mgr
 }
