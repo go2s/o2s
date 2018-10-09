@@ -5,19 +5,21 @@
 package main
 
 import (
-	"net/http"
-	"log"
-	"github.com/go2s/o2s/o2"
-	"gopkg.in/oauth2.v3/store"
-	"github.com/go2s/o2x"
-	"github.com/go2s/o2m"
-	"github.com/golang/glog"
-	"time"
 	"flag"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/go2s/o2m"
 	"github.com/go2s/o2s/captcha"
+	"github.com/go2s/o2s/o2"
+	"github.com/go2s/o2x"
+	"github.com/golang/glog"
+	"gopkg.in/oauth2.v3/store"
 )
 
 const (
+	//Oauth2ListenAddr listen address
 	Oauth2ListenAddr = ":9096"
 )
 
@@ -25,6 +27,7 @@ var (
 	handleMap = map[string]func(w http.ResponseWriter, r *http.Request){}
 )
 
+//HandleHttp bind http handler
 func HandleHttp(method, pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
 	if _, exist := handleMap[pattern]; exist {
 		return
@@ -48,7 +51,6 @@ func main() {
 
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Test Memory Oauth2 Server"
-	cfg.TemplatePrefix = "../template/"
 
 	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, HandleHttp)
 

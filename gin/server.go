@@ -42,7 +42,6 @@ func main() {
 
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Test Gin Oauth2 Server"
-	cfg.TemplatePrefix = "../template/"
 
 	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
 	mcs, err := o2x.NewMemoryCaptchaStore(time.Minute * 5)

@@ -4,6 +4,7 @@
 
 package o2
 
+//ServerConfig oauth2 server config
 type ServerConfig struct {
 	// oauth2 server name, will be show in login and authorize page
 	ServerName string
@@ -19,22 +20,17 @@ type ServerConfig struct {
 
 	// uri prefix to add before authRedirect uri
 	UriPrefix string
-
-	// template path prefix
-	TemplatePrefix string
 }
-
 
 // ---------------------------
 func DefaultServerConfig() *ServerConfig {
 	if defaultOauth2Cfg == nil {
 		defaultOauth2Cfg = &ServerConfig{
-			UriPrefix:      "",
-			UriContext:     "/oauth2",
-			TemplatePrefix: "./",
-			ServerName:     "Oauth2 Server",
-			Logo:           "https://oauth.net/images/oauth-2-sm.png",
-			Favicon:        "https://oauth.net/images/oauth-logo-square.png",
+			UriPrefix:  "",
+			UriContext: "/oauth2",
+			ServerName: "Oauth2 Server",
+			Logo:       "https://oauth.net/images/oauth-2-sm.png",
+			Favicon:    "https://oauth.net/images/oauth-logo-square.png",
 		}
 	}
 	return defaultOauth2Cfg

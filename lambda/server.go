@@ -5,19 +5,20 @@
 package main
 
 import (
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/awslabs/aws-lambda-go-api-proxy/gin"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/go2s/o2s/engine"
-	"github.com/go2s/o2s/o2"
-	"github.com/go2s/o2m"
-	"gopkg.in/mgo.v2"
-	"github.com/golang/glog"
 	"flag"
 	"time"
-	"github.com/go2s/o2r"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/go-redis/redis"
+	"github.com/go2s/o2m"
+	"github.com/go2s/o2r"
 	"github.com/go2s/o2s/captcha"
+	"github.com/go2s/o2s/engine"
+	"github.com/go2s/o2s/o2"
+	"github.com/golang/glog"
+	"gopkg.in/mgo.v2"
 )
 
 var (
@@ -67,7 +68,6 @@ func main() {
 
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Lambda Oauth2 Server"
-	cfg.TemplatePrefix = "../template/"
 
 	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
 	redisOptions := &redis.Options{
