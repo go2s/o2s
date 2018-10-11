@@ -21,26 +21,26 @@ func InitServerConfig(cfg *ServerConfig, mapper HandleMapper) {
 		oauth2Cfg = DefaultServerConfig()
 	}
 
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriIndex, IndexHandler)
+	mapper(http.MethodGet, cfg.URIContext+oauth2UriIndex, IndexHandler)
 
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriLogin, LoginHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriLogin, LoginHandler)
+	mapper(http.MethodGet, cfg.URIContext+oauth2UriLogin, LoginHandler)
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriLogin, LoginHandler)
 
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriAuth, AuthHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriAuth, AuthHandler)
+	mapper(http.MethodGet, cfg.URIContext+oauth2UriAuth, AuthHandler)
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriAuth, AuthHandler)
 
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriAuthorize, AuthorizeRequestHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriAuthorize, AuthorizeRequestHandler)
+	mapper(http.MethodGet, cfg.URIContext+oauth2UriAuthorize, AuthorizeRequestHandler)
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriAuthorize, AuthorizeRequestHandler)
 
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriToken, TokenRequestHandler)
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriToken, TokenRequestHandler)
 
-	mapper(http.MethodGet, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriValid, BearerTokenValidator)
+	mapper(http.MethodGet, cfg.URIContext+oauth2UriValid, BearerTokenValidator)
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriValid, BearerTokenValidator)
 
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserAdd, AddUserHandler)
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserRemove, HandleProcessor(RemoveUserProcessor))
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserPass, HandleProcessor(UpdatePwdProcessor))
-	mapper(http.MethodPost, cfg.UriContext+oauth2UriUserScope, HandleProcessor(UpdateScopeProcessor))
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriUserAdd, AddUserHandler)
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriUserRemove, HandleProcessor(RemoveUserProcessor))
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriUserPass, HandleProcessor(UpdatePwdProcessor))
+	mapper(http.MethodPost, cfg.URIContext+oauth2UriUserScope, HandleProcessor(UpdateScopeProcessor))
 
 	InitTemplate()
 }

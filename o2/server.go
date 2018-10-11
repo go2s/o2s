@@ -6,6 +6,7 @@ package o2
 
 import (
 	"gopkg.in/oauth2.v3"
+	"gopkg.in/oauth2.v3/generates"
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/server"
 
@@ -143,7 +144,7 @@ func (s *Oauth2Server) token(w http.ResponseWriter, data map[string]interface{},
 
 //AddHandler add http handler
 func (s *Oauth2Server) AddHandler(method, uri string, handler func(w http.ResponseWriter, r *http.Request)) {
-	s.mapper(method, s.cfg.UriContext+uri, handler)
+	s.mapper(method, s.cfg.URIContext+uri, handler)
 }
 
 //AddCustomerGrantType add customer grant type
@@ -172,7 +173,9 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	InitServerConfig(cfg, mapper)
 
 	oauth2Mgr = manage.NewDefaultManager()
-
+	if cfg.JWT.Support {
+		oauth2Mgr.MapAccessGenerate(generates.NewJWTAccessGenerate(cfg.JWT.SignKey, cfg.JWT.SignMethod))
+	}
 	oauth2Mgr.MustTokenStorage(ts, nil)
 	oauth2Mgr.MustClientStorage(cs, nil)
 

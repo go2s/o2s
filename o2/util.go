@@ -32,10 +32,10 @@ func authQuery(r *http.Request) (q string) {
 
 // ---------------------------
 func FormatRedirectUri(uri string) string {
-	if oauth2Cfg.UriPrefix != "" {
-		return oauth2Cfg.UriPrefix + oauth2Cfg.UriContext + uri
+	if oauth2Cfg.URIPrefix != "" {
+		return oauth2Cfg.URIPrefix + oauth2Cfg.URIContext + uri
 	}
-	return oauth2Cfg.UriContext + uri
+	return oauth2Cfg.URIContext + uri
 }
 
 func redirectToIndex(w http.ResponseWriter, r *http.Request) {

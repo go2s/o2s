@@ -83,7 +83,7 @@ func main() {
 
 	if lambdaMode {
 		glog.Info("lambda mode oauth2 server")
-		cfg.UriPrefix = "/" + LambdaStaging
+		cfg.URIPrefix = "/" + LambdaStaging
 		lambda.Start(handleRequest)
 	} else {
 		glog.Info("gin mode oauth2 server")

@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/go2s/o2m"
 	"github.com/go2s/o2s/captcha"
 	"github.com/go2s/o2s/o2"
@@ -27,8 +28,8 @@ var (
 	handleMap = map[string]func(w http.ResponseWriter, r *http.Request){}
 )
 
-//HandleHttp bind http handler
-func HandleHttp(method, pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
+//HandleHTTP bind http handler
+func HandleHTTP(method, pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
 	if _, exist := handleMap[pattern]; exist {
 		return
 	}
@@ -51,8 +52,12 @@ func main() {
 
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Test Memory Oauth2 Server"
-
-	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, HandleHttp)
+	cfg.JWT = o2.JWTConfig{
+		Support:    true,
+		SignKey:    []byte("go2s"),
+		SignMethod: jwt.SigningMethodHS512,
+	}
+	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, HandleHTTP)
 
 	mcs, err := o2x.NewMemoryCaptchaStore(time.Minute * 5)
 	if err != nil {
@@ -67,6 +72,7 @@ func main() {
 	glog.Fatal(http.ListenAndServe(Oauth2ListenAddr, nil))
 }
 
+//DemoClient init demo client
 func DemoClient(cs o2x.O2ClientStore) {
 	err := cs.Set("000000", &o2m.Oauth2Client{
 		ID:     "000000",
@@ -79,6 +85,7 @@ func DemoClient(cs o2x.O2ClientStore) {
 	}
 }
 
+//DemoUser init demo user
 func DemoUser(us o2x.UserStore) {
 	u := &o2x.SimpleUser{
 		UserID: "u1",
