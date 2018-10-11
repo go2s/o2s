@@ -5,7 +5,7 @@ require (
 	github.com/aws/aws-lambda-go v1.6.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.0.0-20180713153304-3a4d35011e4a
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/fatih/structs v1.0.0 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gavv/httpexpect v0.0.0-20180803094507-bdde30871313 // indirect
 	github.com/gavv/monotime v0.0.0-20171021193802-6f8212e8d10d // indirect
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
@@ -16,6 +16,7 @@ require (
 	github.com/go2s/o2m v1.1.3-0.20181008082921-2ab5728d7c16
 	github.com/go2s/o2r v1.2.1-0.20181008081123-2c23fd9d645f
 	github.com/go2s/o2x v1.1.3-0.20181008075748-fb280eaee825
+	github.com/go2s/oauth2 v3.9.0+incompatible
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181004151105-1babbf986f6f // indirect
@@ -47,6 +48,7 @@ require (
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
+	golang.org/x/crypto v0.0.0-20181009213950-7c1a557ab941 // indirect
 	golang.org/x/net v0.0.0-20181005035420-146acd28ed58 // indirect
 	golang.org/x/sys v0.0.0-20181005133103-4497e2df6f9e // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
