@@ -4,6 +4,7 @@ require (
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
 	github.com/aws/aws-lambda-go v1.6.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.0.0-20180713153304-3a4d35011e4a
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gavv/httpexpect v0.0.0-20180803094507-bdde30871313 // indirect
@@ -13,7 +14,7 @@ require (
 	github.com/go-redis/redis v6.14.1+incompatible
 	github.com/go-session/redis v3.0.0+incompatible
 	github.com/go-session/session v3.0.3+incompatible
-	github.com/go2s/o2m v1.1.3-0.20181008082921-2ab5728d7c16
+	github.com/go2s/o2m v1.1.2
 	github.com/go2s/o2r v1.2.1-0.20181008081123-2c23fd9d645f
 	github.com/go2s/o2x v1.1.3-0.20181008075748-fb280eaee825
 	github.com/go2s/oauth2 v3.9.0+incompatible
@@ -32,6 +33,7 @@ require (
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	github.com/smartystreets/goconvey v0.0.0-20180222194500-ef6db91d284a // indirect
+	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/tidwall/btree v0.0.0-20170113224114-9876f1454cf0 // indirect
 	github.com/tidwall/buntdb v1.0.0 // indirect
 	github.com/tidwall/gjson v1.1.3 // indirect

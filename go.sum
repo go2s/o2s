@@ -34,6 +34,8 @@ github.com/go-session/redis v3.0.0+incompatible h1:kV+kEmHo7CI7arFvc19MvWdExV0Y+
 github.com/go-session/redis v3.0.0+incompatible/go.mod h1:fI1JsUaQJjwbX7pPc9mQhKSXWmURT1oDNN5LjJpetIc=
 github.com/go-session/session v3.0.3+incompatible h1:CVJJs6+cvlFoiuOw96QD1GXnyElugCy8O51eCSf8LFo=
 github.com/go-session/session v3.0.3+incompatible/go.mod h1:8B3iivBQjrz/JtC68Np2T1yBBLxTan3mn/3OM0CyRt0=
+github.com/go2s/o2m v1.1.2 h1:GHZVBI7K30Y/cMpIQJRxpMQgfzU2SLuiV6lR3oYGRc8=
+github.com/go2s/o2m v1.1.2/go.mod h1:nn0SIZ1urWprYwUBAFHHSwbuMmTuBMtZYJEEddTpmo8=
 github.com/go2s/o2m v1.1.3-0.20181008082921-2ab5728d7c16 h1:6q28HjIMKzPga/geF3FSYDSAB/dhH76MJCUQQnfDsGY=
 github.com/go2s/o2m v1.1.3-0.20181008082921-2ab5728d7c16/go.mod h1:mnY5kkYX0oSNWktYEEVvKbqT3uyhk/NbSECXSiOVID4=
 github.com/go2s/o2r v1.2.1-0.20181008081123-2c23fd9d645f h1:8F6usnj01ofBelDi4lBxLJbePNlaobb7jkUudIn4Aog=
@@ -145,6 +147,7 @@ github.com/yudai/pp v2.0.1+incompatible/go.mod h1:PuxR/8QJ7cyCkFp/aUDS+JY727OFEZ
 golang.org/x/crypto v0.0.0-20180606015541-b47b15873692/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20181001203147-e3636079e1a4 h1:Vk3wNqEZwyGyei9yq5ekj7frek2u7HUfffJ1/opblzc=
 golang.org/x/crypto v0.0.0-20181001203147-e3636079e1a4/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
+golang.org/x/crypto v0.0.0-20181009213950-7c1a557ab941 h1:qBTHLajHecfu+xzRI9PqVDcqx7SdHj9d4B+EzSn3tAc=
 golang.org/x/crypto v0.0.0-20181009213950-7c1a557ab941/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/net v0.0.0-20180906233101-161cd47e91fd/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/net v0.0.0-20180911220305-26e67e76b6c3/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
