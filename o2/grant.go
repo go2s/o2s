@@ -4,7 +4,7 @@
 package o2
 
 import (
-	"gopkg.in/oauth2.v3"
+	"github.com/go2s/oauth2"
 	"net/http"
 )
 

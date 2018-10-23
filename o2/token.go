@@ -5,7 +5,7 @@
 package o2
 
 import (
-	"gopkg.in/oauth2.v3/manage"
+	"github.com/go2s/oauth2/manage"
 	"time"
 )
 

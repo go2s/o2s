@@ -16,7 +16,7 @@ import (
 	"github.com/go2s/o2s/o2"
 	"github.com/go2s/o2x"
 	"github.com/golang/glog"
-	"gopkg.in/oauth2.v3/store"
+	"github.com/go2s/oauth2/store"
 )
 
 const (

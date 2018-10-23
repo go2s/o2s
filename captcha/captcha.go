@@ -5,14 +5,15 @@ package captcha
 
 import (
 	"net/http"
-	"github.com/go2s/o2x"
-	"github.com/golang/glog"
-	"gopkg.in/oauth2.v3/errors"
-	"gopkg.in/oauth2.v3"
-	oauth2Error "gopkg.in/oauth2.v3/errors"
+
 	"github.com/go2s/o2s/o2"
+	"github.com/go2s/o2x"
+	"github.com/go2s/oauth2"
+	"github.com/go2s/oauth2/errors"
+	"github.com/golang/glog"
 )
 
+//CaptchaSender send captcha to mobile
 type CaptchaSender func(mobile, captcha string) (err error)
 
 const (
@@ -27,6 +28,7 @@ var (
 	oauth2CaptchaSender  CaptchaSender
 )
 
+//CaptchaLogSender print captcha in log
 func CaptchaLogSender(mobile, captcha string) (err error) {
 	glog.Infof("captcha console sender:%v,%v", mobile, captcha)
 	return
@@ -88,7 +90,7 @@ func SendCaptcha(w http.ResponseWriter, r *http.Request) (err error) {
 // validate captcha token request
 func ValidationCaptchaTokenRequest(r *http.Request) (gt oauth2.GrantType, tgr *oauth2.TokenGenerateRequest, err error) {
 	if !o2xCaptchaAuthEnable {
-		err = oauth2Error.ErrUnsupportedGrantType
+		err = errors.ErrUnsupportedGrantType
 		return
 	}
 
@@ -98,7 +100,7 @@ func ValidationCaptchaTokenRequest(r *http.Request) (gt oauth2.GrantType, tgr *o
 	mobile := r.FormValue("mobile")
 	captcha := r.FormValue("captcha")
 	if mobile == "" || captcha == "" {
-		err = oauth2Error.ErrInvalidRequest
+		err = errors.ErrInvalidRequest
 		return
 	}
 	valid, err := oauth2CaptchaStore.Valid(mobile, captcha)
@@ -126,7 +128,7 @@ func ValidationCaptchaTokenRequest(r *http.Request) (gt oauth2.GrantType, tgr *o
 		err = verr
 		return
 	} else if user == nil {
-		err = oauth2Error.ErrInvalidGrant
+		err = errors.ErrInvalidGrant
 		return
 	}
 

@@ -5,17 +5,17 @@
 package o2
 
 import (
-	"gopkg.in/oauth2.v3"
-	"gopkg.in/oauth2.v3/generates"
-	"gopkg.in/oauth2.v3/manage"
-	"gopkg.in/oauth2.v3/server"
+	"github.com/go2s/oauth2"
+	"github.com/go2s/oauth2/generates"
+	"github.com/go2s/oauth2/manage"
+	"github.com/go2s/oauth2/server"
 
 	"encoding/json"
 	"net/http"
 
 	"github.com/go2s/o2x"
+	"github.com/go2s/oauth2/errors"
 	"github.com/golang/glog"
-	oauth2Error "gopkg.in/oauth2.v3/errors"
 )
 
 //Oauth2Server oauth2 server
@@ -92,7 +92,7 @@ func (s *Oauth2Server) ValidationTokenRequest(r *http.Request) (gt oauth2.GrantT
 		return
 	}
 	glog.Errorf("the scope of user [%v] for client [%v] is [%v], but request [%v]", tgr.UserID, tgr.ClientID, scope, tgr.Scope)
-	err = oauth2Error.ErrInvalidScope
+	err = errors.ErrInvalidScope
 	return
 }
 

@@ -6,7 +6,7 @@ package o2
 
 import (
 	"github.com/go2s/o2x"
-	"gopkg.in/oauth2.v3/manage"
+	"github.com/go2s/oauth2/manage"
 )
 
 const (

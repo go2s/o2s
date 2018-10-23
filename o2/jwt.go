@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"gopkg.in/oauth2.v3/errors"
-	"gopkg.in/oauth2.v3/generates"
+	"github.com/go2s/oauth2/errors"
+	"github.com/go2s/oauth2/generates"
 )
 
 //ParseJWTAccessToken valid jwt access token

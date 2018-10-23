@@ -5,7 +5,7 @@
 package o2
 
 import (
-	"gopkg.in/oauth2.v3/errors"
+	"github.com/go2s/oauth2/errors"
 	"github.com/golang/glog"
 	"github.com/go2s/o2x"
 )
