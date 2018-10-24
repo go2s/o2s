@@ -18,6 +18,7 @@ import (
 	"github.com/go2s/o2s/captcha"
 	"github.com/go2s/o2s/engine"
 	"github.com/go2s/o2s/o2"
+	"github.com/go2s/oauth2/jwtex"
 	"github.com/golang/glog"
 	"gopkg.in/mgo.v2"
 )
@@ -45,7 +46,7 @@ var mgoCfg o2m.MongoConfig
 var mgoSession *mgo.Session
 
 func main() {
-	flag.BoolVar(&lambdaMode, "lambda", true, "lambda mode enable")
+	flag.BoolVar(&lambdaMode, "lambda", false, "lambda mode enable")
 	flag.Parse()
 	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
 
@@ -59,21 +60,18 @@ func main() {
 
 	mgoSession = o2m.NewMongoSession(&mgoCfg)
 
-	ts := o2m.NewTokenStore(mgoSession, mgoDatabase, "token")
-
-	cs := o2m.NewClientStore(mgoSession, mgoDatabase, "client")
-
-	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user", o2m.DefaultMgoUserCfg())
-
-	as := o2m.NewAuthStore(mgoSession, mgoDatabase, "auth")
-
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Lambda Oauth2 Server"
-	cfg.JWT = o2.JWTConfig{
-		Support:    true,
-		SignKey:    []byte("go2s"),
-		SignMethod: jwt.SigningMethodHS512,
+	cfg.JWTSupport = true
+	cfg.JWT = jwtex.JWTConfig{
+		SignedKey:     []byte("go2s"),
+		SigningMethod: jwt.SigningMethodHS512,
 	}
+	ts := o2m.NewTokenStore(mgoSession, mgoDatabase, "token")
+	cs := o2m.NewClientStore(mgoSession, mgoDatabase, "client")
+	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user", o2m.DefaultMgoUserCfg())
+	as := o2m.NewAuthStore(mgoSession, mgoDatabase, "auth")
+
 	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
 	redisOptions := &redis.Options{
 		Addr: "127.0.0.1:6379",

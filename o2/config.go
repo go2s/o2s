@@ -4,7 +4,7 @@
 
 package o2
 
-import jwt "github.com/dgrijalva/jwt-go"
+import "github.com/go2s/oauth2/jwtex"
 
 //ServerConfig oauth2 server config
 type ServerConfig struct {
@@ -23,20 +23,11 @@ type ServerConfig struct {
 	// uri prefix to add before authRedirect uri
 	URIPrefix string
 
+	// JWTSupport jwt token
+	JWTSupport bool
+
 	//JWT config
-	JWT JWTConfig
-}
-
-// JWTConfig jwt config
-type JWTConfig struct {
-	// Support jwt token
-	Support bool
-
-	// SignKey jwt sign key
-	SignKey []byte
-
-	// SignMethod jwt sign method
-	SignMethod jwt.SigningMethod
+	JWT jwtex.JWTConfig
 }
 
 // DefaultServerConfig default server config
@@ -48,9 +39,7 @@ func DefaultServerConfig() *ServerConfig {
 			ServerName: "Oauth2 Server",
 			Logo:       "https://oauth.net/images/oauth-2-sm.png",
 			Favicon:    "https://oauth.net/images/oauth-logo-square.png",
-			JWT: JWTConfig{
-				Support: false,
-			},
+			JWTSupport: false,
 		}
 	}
 	return defaultOauth2Cfg

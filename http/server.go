@@ -15,8 +15,9 @@ import (
 	"github.com/go2s/o2s/captcha"
 	"github.com/go2s/o2s/o2"
 	"github.com/go2s/o2x"
-	"github.com/golang/glog"
+	"github.com/go2s/oauth2/jwtex"
 	"github.com/go2s/oauth2/store"
+	"github.com/golang/glog"
 )
 
 const (
@@ -42,21 +43,22 @@ func main() {
 	flag.Parse()
 	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
 
+	cfg := o2.DefaultServerConfig()
+	cfg.ServerName = "Test Memory Oauth2 Server"
+	cfg.JWTSupport = true
+	cfg.JWT = jwtex.JWTConfig{
+		SignedKey:     []byte("go2s"),
+		SigningMethod: jwt.SigningMethodHS512,
+	}
 	ts, err := store.NewMemoryTokenStore()
 	if err != nil {
 		panic(err)
 	}
+
 	cs := store.NewClientStore()
 	us := o2x.NewUserStore()
 	as := o2x.NewAuthStore()
 
-	cfg := o2.DefaultServerConfig()
-	cfg.ServerName = "Test Memory Oauth2 Server"
-	cfg.JWT = o2.JWTConfig{
-		Support:    true,
-		SignKey:    []byte("go2s"),
-		SignMethod: jwt.SigningMethodHS512,
-	}
 	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, HandleHTTP)
 
 	mcs, err := o2x.NewMemoryCaptchaStore(time.Minute * 5)

@@ -5,11 +5,12 @@
 package o2
 
 import (
-	"github.com/go2s/oauth2/manage"
 	"time"
+
+	"github.com/go2s/oauth2/manage"
 )
 
-func DefaultTokenConfig(manager *manage.Manager) {
+func defaultTokenConfig(manager *manage.Manager) {
 	// ------------------------------
 	// SetImplicitTokenCfg set the implicit grant token config
 	cfg := &manage.Config{
@@ -55,6 +56,16 @@ func DefaultTokenConfig(manager *manage.Manager) {
 	refCfg := &manage.RefreshingConfig{
 		// whether to generate the refreshing token
 		IsGenerateRefresh: true,
+		// access token expiration time
+		AccessTokenExp: time.Hour * 2,
+		// refresh token expiration time
+		RefreshTokenExp: time.Hour * 24 * 3,
+		// whether to reset the refreshing create time
+		IsResetRefreshTime: false,
+		// whether to remove access token
+		IsRemoveAccess: true,
+		// whether to remove refreshing token
+		IsRemoveRefreshing: true,
 	}
 	manager.SetRefreshTokenCfg(refCfg)
 }

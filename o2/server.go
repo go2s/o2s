@@ -6,7 +6,7 @@ package o2
 
 import (
 	"github.com/go2s/oauth2"
-	"github.com/go2s/oauth2/generates"
+	"github.com/go2s/oauth2/jwtex"
 	"github.com/go2s/oauth2/manage"
 	"github.com/go2s/oauth2/server"
 
@@ -173,13 +173,13 @@ func InitOauth2Server(cs oauth2.ClientStore, ts oauth2.TokenStore, us o2x.UserSt
 	InitServerConfig(cfg, mapper)
 
 	oauth2Mgr = manage.NewDefaultManager()
-	if cfg.JWT.Support {
-		oauth2Mgr.MapAccessGenerate(generates.NewJWTAccessGenerate(cfg.JWT.SignKey, cfg.JWT.SignMethod))
+	if cfg.JWTSupport {
+		oauth2Mgr.MapAccessGenerate(jwtex.NewJWTAccessGenerate(cfg.JWT))
 	}
 	oauth2Mgr.MustTokenStorage(ts, nil)
 	oauth2Mgr.MustClientStorage(cs, nil)
 
-	DefaultTokenConfig(oauth2Mgr)
+	defaultTokenConfig(oauth2Mgr)
 
 	oauth2Svr = NewServer(&server.Config{
 		TokenType:            "Bearer",

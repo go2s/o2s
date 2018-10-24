@@ -12,7 +12,7 @@ require (
 	github.com/go2s/o2m v1.1.3-0.20181022093746-e127ae170bf5
 	github.com/go2s/o2r v1.2.1-0.20181022094108-87054c3416c8
 	github.com/go2s/o2x v1.1.3-0.20181022093425-3eee472e3635
-	github.com/go2s/oauth2 v0.0.0-20181022093209-e72df861e843
+	github.com/go2s/oauth2 v0.0.0-20181024022624-839bd60aa239
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
