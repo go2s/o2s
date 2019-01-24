@@ -5,9 +5,9 @@
 package o2
 
 import (
-	"github.com/go2s/oauth2/errors"
+	"github.com/go2s/o2s/o2x"
 	"github.com/golang/glog"
-	"github.com/go2s/o2x"
+	"gopkg.in/oauth2.v3/errors"
 )
 
 func InternalErrorHandler(err error) (re *errors.Response) {

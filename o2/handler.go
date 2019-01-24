@@ -7,7 +7,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go2s/o2x"
+	"github.com/go2s/o2s/o2x"
 	"gopkg.in/session.v3"
 )
 

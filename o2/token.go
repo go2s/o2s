@@ -7,7 +7,7 @@ package o2
 import (
 	"time"
 
-	"github.com/go2s/oauth2/manage"
+	"gopkg.in/oauth2.v3/manage"
 )
 
 func defaultTokenConfig(manager *manage.Manager) {

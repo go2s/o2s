@@ -5,16 +5,16 @@
 package o2
 
 import (
-	"github.com/go2s/oauth2"
-	"github.com/go2s/oauth2/jwtex"
-	"github.com/go2s/oauth2/manage"
-	"github.com/go2s/oauth2/server"
-
 	"encoding/json"
 	"net/http"
 
-	"github.com/go2s/o2x"
-	"github.com/go2s/oauth2/errors"
+	"gopkg.in/oauth2.v3/manage"
+	"gopkg.in/oauth2.v3/server"
+	"github.com/go2s/o2s/jwtex"
+	"gopkg.in/oauth2.v3"
+
+	"gopkg.in/oauth2.v3/errors"
+	"github.com/go2s/o2s/o2x"
 	"github.com/golang/glog"
 )
 

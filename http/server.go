@@ -11,12 +11,12 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/go2s/o2m"
+	"gopkg.in/oauth2.v3/store"
 	"github.com/go2s/o2s/captcha"
+	"github.com/go2s/o2s/jwtex"
 	"github.com/go2s/o2s/o2"
-	"github.com/go2s/o2x"
-	"github.com/go2s/oauth2/jwtex"
-	"github.com/go2s/oauth2/store"
+	"github.com/go2s/o2s/o2m"
+	"github.com/go2s/o2s/o2x"
 	"github.com/golang/glog"
 )
 

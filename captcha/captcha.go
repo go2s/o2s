@@ -6,11 +6,11 @@ package captcha
 import (
 	"net/http"
 
+	"gopkg.in/oauth2.v3/errors"
 	"github.com/go2s/o2s/o2"
-	"github.com/go2s/o2x"
-	"github.com/go2s/oauth2"
-	"github.com/go2s/oauth2/errors"
+	"github.com/go2s/o2s/o2x"
 	"github.com/golang/glog"
+	"gopkg.in/oauth2.v3"
 )
 
 //CaptchaSender send captcha to mobile

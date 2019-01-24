@@ -8,11 +8,11 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go2s/o2x"
+	"github.com/go2s/o2s/o2x"
 	"github.com/golang/glog"
 	"gopkg.in/session.v3"
 
-	oauth2Error "github.com/go2s/oauth2/errors"
+	oauth2Error "gopkg.in/oauth2.v3/errors"
 )
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {

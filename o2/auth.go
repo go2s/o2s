@@ -8,8 +8,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go2s/o2x"
-	oauth2Errors "github.com/go2s/oauth2/errors"
+	"github.com/go2s/o2s/o2x"
+	oauth2Errors "gopkg.in/oauth2.v3/errors"
 	"gopkg.in/session.v3"
 )
 

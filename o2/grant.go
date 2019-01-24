@@ -4,8 +4,9 @@
 package o2
 
 import (
-	"github.com/go2s/oauth2"
 	"net/http"
+
+	"gopkg.in/oauth2.v3"
 )
 
 type GrantTypeRequestValidator func(r *http.Request) (gt oauth2.GrantType, tgr *oauth2.TokenGenerateRequest, err error)

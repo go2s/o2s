@@ -4,7 +4,7 @@
 
 package o2
 
-import "github.com/go2s/oauth2/jwtex"
+import "github.com/go2s/o2s/jwtex"
 
 //ServerConfig oauth2 server config
 type ServerConfig struct {

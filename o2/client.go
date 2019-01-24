@@ -4,8 +4,8 @@
 package o2
 
 import (
-	"github.com/go2s/oauth2"
-	"github.com/go2s/o2x"
+	"github.com/go2s/o2s/o2x"
+	"gopkg.in/oauth2.v3"
 )
 
 // ClientScopeHandler check the client allows to use scope
