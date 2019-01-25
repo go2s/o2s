@@ -4,7 +4,7 @@
 - support memory,redis,mongodb token&client storage
 - support memory,redis session
 
-## Run Ouath2 Server:
+## Run Oauth2 Server:
 
 ```
 go get -u -v gopkg.in/oauth2.v3/errors

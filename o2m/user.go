@@ -5,14 +5,18 @@
 package o2m
 
 import (
-	"gopkg.in/mgo.v2"
-	"github.com/go2s/o2s/o2x"
-	"reflect"
-	"gopkg.in/mgo.v2/bson"
-	"github.com/golang/glog"
-	"github.com/patrickmn/go-cache"
-	"time"
+	"context"
 	"fmt"
+	"github.com/go2s/o2s/o2x"
+	"github.com/golang/glog"
+	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/bson/primitive"
+	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"github.com/mongodb/mongo-go-driver/x/bsonx"
+	"github.com/patrickmn/go-cache"
+	"reflect"
+	"time"
 )
 
 var (
@@ -60,7 +64,7 @@ type MgoUserMobile struct {
 }
 
 type MgoUserStore struct {
-	session          *mgo.Session
+	client           *mongo.Client
 	db               string
 	collection       string
 	mobileCollection string
@@ -75,21 +79,22 @@ func DefaultMgoUserCfg() *MgoUserCfg {
 	}
 }
 
-func NewUserStore(session *mgo.Session, db, collection string, userCfg *MgoUserCfg) (us *MgoUserStore) {
+func NewUserStore(client *mongo.Client, db, collection string, userCfg *MgoUserCfg) (us *MgoUserStore) {
 	if !o2x.IsUserType(userCfg.userType) {
 		panic("invalid user type")
 	}
 	us = &MgoUserStore{
-		session:          session,
+		client:           client,
 		db:               db,
 		collection:       collection,
 		mobileCollection: collection + "_mobile",
 		userCfg:          userCfg,
 	}
 
-	err := session.DB(us.db).C(us.mobileCollection).EnsureIndex(mgo.Index{
-		Key:    []string{"mobile"},
-		Unique: true,
+	option := options.Index().SetUnique(true)
+	_, err := us.c(us.collection).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys:    bsonx.Doc{bsonx.Elem{Key: "mobile", Value: bsonx.Int32(1)}},
+		Options: option,
 	})
 	if err != nil {
 		panic(err)
@@ -98,47 +103,53 @@ func NewUserStore(session *mgo.Session, db, collection string, userCfg *MgoUserC
 	return
 }
 
-func (us *MgoUserStore) lockUserMobile(session *mgo.Session, userId, mobile string) (err error) {
+func (us *MgoUserStore) c(name string) *mongo.Collection {
+	return us.client.Database(us.db).Collection(name)
+}
+
+func (us *MgoUserStore) lockUserMobile(userId, mobile string) (err error) {
 	if userId == "" || mobile == "" {
 		err = o2x.ErrValueRequired
 		return
 	}
-	c := session.DB(us.db).C(us.mobileCollection)
+	c := us.c(us.mobileCollection)
 	userMobile := &MgoUserMobile{
 		Id:     userId,
 		Mobile: mobile,
 	}
-	err = c.Insert(userMobile)
+	count, err := c.Count(context.TODO(), userMobile)
+	if count > 0 || err != nil {
+		return
+	}
+
+	_, err = c.InsertOne(context.TODO(), userMobile)
+
 	return
 }
 
-func (us *MgoUserStore) unlockUserMobile(session *mgo.Session, userId string) (err error) {
+func (us *MgoUserStore) unlockUserMobile(userId string) (err error) {
 	if userId == "" {
 		err = o2x.ErrValueRequired
 		return
 	}
-	c := session.DB(us.db).C(us.mobileCollection)
-	mgoErr := c.RemoveId(userId)
-	if mgoErr != mgo.ErrNotFound {
+	c := us.c(us.mobileCollection)
+	_, mgoErr := c.DeleteOne(context.TODO(), bson.M{"_id": userId})
+	if mgoErr != mongo.ErrNoDocuments {
 		err = mgoErr
 	}
 	return
 }
 
 func (us *MgoUserStore) Save(u o2x.User) (err error) {
-	session := us.session.Clone()
-	defer session.Close()
-
 	if u.GetMobile() != "" {
-		err = us.lockUserMobile(session, u.GetID(), u.GetMobile())
+		err = us.lockUserMobile(u.GetID(), u.GetMobile())
 		if err != nil {
 			return
 		}
 	}
-	c := session.DB(us.db).C(us.collection)
+	c := us.c(us.collection)
 	glog.Infof("insert user:%v", u)
-	err = c.Insert(u)
-
+	_, err = c.InsertOne(nil, u)
 	if err != nil {
 		return
 	}
@@ -150,27 +161,29 @@ func (us *MgoUserStore) Save(u o2x.User) (err error) {
 func (us *MgoUserStore) Remove(id interface{}) (err error) {
 	removeUserCache(id)
 
-	session := us.session.Clone()
-	defer session.Close()
-	c := session.DB(us.db).C(us.collection)
-
 	sid, err := o2x.UserIdString(id)
 	if err != nil {
 		return
 	}
 
 	glog.Infof("remove user:%v", id)
-	us.unlockUserMobile(session, sid)
+	us.unlockUserMobile(sid)
 
-	mgoErr := c.RemoveId(id)
-	if mgoErr != nil && mgoErr == mgo.ErrNotFound {
+	c := us.c(us.collection)
+
+	res, mgoErr := c.DeleteOne(context.TODO(), bson.M{"_id": id})
+
+	if mgoErr == nil && res.DeletedCount == 0 {
 		// try to find using object id
-		if sid, ok := id.(string); ok && bson.IsObjectIdHex(sid) {
-			bid := bson.ObjectIdHex(sid)
-			mgoErr = c.RemoveId(bid)
+		if sid, ok := id.(string); ok {
+			objectID, err := primitive.ObjectIDFromHex(sid)
+			if err == nil {
+				_, mgoErr = c.DeleteOne(nil, bson.M{"_id": objectID})
+			}
 		}
 	}
-	if mgoErr != nil && mgoErr == mgo.ErrNotFound {
+
+	if mgoErr != nil && mgoErr == mongo.ErrNoDocuments {
 		err = o2x.ErrNotFound
 		return
 	}
@@ -183,22 +196,22 @@ func (us *MgoUserStore) Find(id interface{}) (u o2x.User, err error) {
 		return
 	}
 
-	session := us.session.Clone()
-	defer session.Close()
-	c := session.DB(us.db).C(us.collection)
+	c := us.c(us.collection)
 
 	user := o2x.NewUser(us.userCfg.userType)
-	mgoErr := c.FindId(id).One(user)
-	if mgoErr != nil && mgoErr == mgo.ErrNotFound {
+	mgoErr := c.FindOne(context.TODO(), bson.M{"_id": id}).Decode(user)
+	if mgoErr != nil && mgoErr == mongo.ErrNoDocuments {
 		// try to find using object id
-		if sid, ok := id.(string); ok && bson.IsObjectIdHex(sid) {
-			bid := bson.ObjectIdHex(sid)
-			mgoErr = c.FindId(bid).One(user)
+		if sid, ok := id.(string); ok {
+			objectID, err := primitive.ObjectIDFromHex(sid)
+			if err == nil {
+				mgoErr = c.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(user)
+			}
 		}
 	}
 
 	if mgoErr != nil {
-		if mgoErr == mgo.ErrNotFound {
+		if mgoErr == mongo.ErrNoDocuments {
 			err = o2x.ErrNotFound
 			return
 		}
@@ -219,13 +232,12 @@ func (us *MgoUserStore) Find(id interface{}) (u o2x.User, err error) {
 }
 
 func (us *MgoUserStore) FindMobile(mobile string) (u o2x.User, err error) {
-	session := us.session.Clone()
-	defer session.Close()
-	c := session.DB(us.db).C(us.collection)
+
+	c := us.c(us.collection)
 
 	user := o2x.NewUser(us.userCfg.userType)
-	mgoErr := c.Find(bson.M{"mobile": mobile}).One(user)
-	if mgoErr != nil && mgoErr == mgo.ErrNotFound {
+	mgoErr := c.FindOne(context.TODO(), bson.M{"mobile": mobile}).Decode(user)
+	if mgoErr != nil && mgoErr == mongo.ErrNoDocuments {
 		err = o2x.ErrNotFound
 		return
 	}
@@ -241,14 +253,11 @@ func (us *MgoUserStore) UpdatePwd(id interface{}, password string) (err error) {
 	glog.Infof("update user password %v", id)
 	user.SetRawPassword(password)
 
-	session := us.session.Clone()
-	defer session.Close()
-	c := session.DB(us.db).C(us.collection)
+	c := us.c(us.collection)
 
 	bs := bson.M{us.userCfg.passwordName: user.GetPassword(), us.userCfg.saltName: user.GetSalt()}
 	bs = bson.M{"$set": bs}
-	err = c.UpdateId(user.GetUserID(), bs)
-
+	_, err = c.UpdateOne(context.TODO(), bson.M{"_id": user.GetUserID()}, bs)
 	if err != nil {
 		return
 	}
@@ -263,13 +272,11 @@ func (us *MgoUserStore) UpdateScope(id interface{}, clientId, scope string) (err
 	}
 	glog.Infof("update user %v client %v scope %v", id, clientId, scope)
 
-	session := us.session.Clone()
-	defer session.Close()
-	c := session.DB(us.db).C(us.collection)
+	c := us.c(us.collection)
 
 	bs := bson.M{"scopes." + clientId: scope}
 	bs = bson.M{"$set": bs}
-	err = c.UpdateId(user.GetUserID(), bs)
+	_, err = c.UpdateOne(context.TODO(), bson.M{"_id": user.GetUserID()}, bs)
 
 	if err != nil {
 		return

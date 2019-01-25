@@ -1,6 +1,6 @@
 // authors: wangoo
 // created: 2018-05-21
-// ouath2 server demo based on redis storage
+// Oauth2 server demo based on redis storage
 
 package o2
 

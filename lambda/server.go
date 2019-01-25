@@ -6,21 +6,21 @@ package main
 
 import (
 	"flag"
+	"github.com/mongodb/mongo-go-driver/mongo"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/gin"
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-redis/redis"
-	"github.com/go2s/o2s/o2m"
-	"github.com/go2s/o2s/o2r"
 	"github.com/go2s/o2s/captcha"
 	"github.com/go2s/o2s/engine"
-	"github.com/go2s/o2s/o2"
 	"github.com/go2s/o2s/jwtex"
+	"github.com/go2s/o2s/o2"
+	"github.com/go2s/o2s/o2m"
+	"github.com/go2s/o2s/o2r"
 	"github.com/golang/glog"
-	"gopkg.in/mgo.v2"
 )
 
 var (
@@ -43,7 +43,7 @@ func handleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 }
 
 var mgoCfg o2m.MongoConfig
-var mgoSession *mgo.Session
+var mgoClient *mongo.Client
 
 func main() {
 	flag.BoolVar(&lambdaMode, "lambda", false, "lambda mode enable")
@@ -51,14 +51,14 @@ func main() {
 	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
 
 	mgoCfg = o2m.MongoConfig{
-		Addrs:     mgoAddrs,
+		Address:   mgoAddrs,
 		Database:  mgoDatabase,
 		Username:  mgoUsername,
 		Password:  mgoPassword,
 		PoolLimit: mgoPoolLimit,
 	}
 
-	mgoSession = o2m.NewMongoSession(&mgoCfg)
+	mgoClient = o2m.NewMongoClient(&mgoCfg)
 
 	cfg := o2.DefaultServerConfig()
 	cfg.ServerName = "Lambda Oauth2 Server"
@@ -67,10 +67,10 @@ func main() {
 		SignedKey:     []byte("go2s"),
 		SigningMethod: jwt.SigningMethodHS512,
 	}
-	ts := o2m.NewTokenStore(mgoSession, mgoDatabase, "token")
-	cs := o2m.NewClientStore(mgoSession, mgoDatabase, "client")
-	us := o2m.NewUserStore(mgoSession, mgoDatabase, "user", o2m.DefaultMgoUserCfg())
-	as := o2m.NewAuthStore(mgoSession, mgoDatabase, "auth")
+	ts := o2m.NewTokenStore(mgoClient, mgoDatabase, "token")
+	cs := o2m.NewClientStore(mgoClient, mgoDatabase, "client")
+	us := o2m.NewUserStore(mgoClient, mgoDatabase, "user", o2m.DefaultMgoUserCfg())
+	as := o2m.NewAuthStore(mgoClient, mgoDatabase, "auth")
 
 	svr := o2.InitOauth2Server(cs, ts, us, as, cfg, engine.GinMap)
 	redisOptions := &redis.Options{

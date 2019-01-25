@@ -1,15 +1,16 @@
-// ouath2 client mongo store
+// Oauth2 client mongo store
 // authors: wongoo
 
 package o2m
 
 import (
-	"time"
-
+	"context"
 	"github.com/go2s/o2s/o2x"
+	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/patrickmn/go-cache"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/oauth2.v3"
+	"time"
 )
 
 const (
@@ -43,7 +44,7 @@ func getClientCache(id string) (cli oauth2.ClientInfo) {
 type MongoClientStore struct {
 	db         string
 	collection string
-	session    *mgo.Session
+	client     *mongo.Client
 }
 
 type Oauth2Client struct {
@@ -74,11 +75,11 @@ func (c *Oauth2Client) GetUserID() string {
 	return c.UserID
 }
 
-func NewClientStore(session *mgo.Session, db string, collection string) (clientStore *MongoClientStore) {
-	if session == nil {
-		panic("session cannot be nil")
+func NewClientStore(client *mongo.Client, db string, collection string) (clientStore *MongoClientStore) {
+	if client == nil {
+		panic("client cannot be nil")
 	}
-	clientStore = &MongoClientStore{session: session, db: db, collection: collection}
+	clientStore = &MongoClientStore{client: client, db: db, collection: collection}
 	if clientStore.db == "" {
 		clientStore.db = DefaultOauth2ClientDb
 	}
@@ -95,13 +96,10 @@ func (cs *MongoClientStore) GetByID(id string) (cli oauth2.ClientInfo, err error
 		return
 	}
 
-	session := cs.session.Clone()
-	defer session.Close()
-
-	c := session.DB(cs.db).C(cs.collection)
-	query := c.FindId(id)
+	c := cs.client.Database(cs.db).Collection(cs.collection)
+	query := c.FindOne(context.TODO(), bson.M{"_id": id})
 	client := &Oauth2Client{}
-	err = query.One(client)
+	err = query.Decode(client)
 	if err != nil {
 		return nil, err
 	}
@@ -112,10 +110,6 @@ func (cs *MongoClientStore) GetByID(id string) (cli oauth2.ClientInfo, err error
 
 // Add a client info
 func (cs *MongoClientStore) Set(id string, cli oauth2.ClientInfo) (err error) {
-	session := cs.session.Clone()
-	defer session.Close()
-
-	c := session.DB(cs.db).C(cs.collection)
 	client := &Oauth2Client{
 		ID:     cli.GetID(),
 		UserID: cli.GetUserID(),
@@ -128,5 +122,7 @@ func (cs *MongoClientStore) Set(id string, cli oauth2.ClientInfo) (err error) {
 		client.GrantTypes = o2ClientInfo.GetGrantTypes()
 	}
 	addClientCache(client)
-	return c.Insert(client)
+	c := cs.client.Database(cs.db).Collection(cs.collection)
+	_, err = c.InsertOne(context.TODO(), client)
+	return
 }

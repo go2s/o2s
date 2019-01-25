@@ -7,7 +7,7 @@
 package main
 
 const (
-	LambdaStaging   = "qa"
+	LambdaStaging = "qa"
 
 	rdsAddr     = "sop-redis-for-dev.4qisdv.0001.cnn1.cache.amazonaws.com.cn:6379"
 	rdsPassword = ""
@@ -18,8 +18,4 @@ const (
 	mgoPoolLimit = 10
 )
 
-var mgoAddrs = []string{
-	"172.31.0.10:27017",
-	"172.31.0.11:27017",
-	"172.31.0.12:27017",
-}
+var mgoAddrs = "mongodb://172.31.0.10:27017,172.31.0.11:27017,172.31.0.12:27017"

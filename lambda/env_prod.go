@@ -7,7 +7,7 @@
 package main
 
 const (
-	LambdaStaging   = "prod"
+	LambdaStaging = "prod"
 
 	rdsAddr     = "127.0.0.1:6379"
 	rdsPassword = ""
@@ -18,8 +18,4 @@ const (
 	mgoPoolLimit = 10
 )
 
-var mgoAddrs = []string{
-	"172.16.101.10:27017",
-	"172.16.101.11:27017",
-	"172.16.100.11:27017",
-}
+var mgoAddrs = "mongodb://172.16.101.10:27017,172.16.101.11:27017,172.16.100.11:27017"

@@ -5,53 +5,58 @@
 package o2m
 
 import (
-	"gopkg.in/oauth2.v3"
-	"gopkg.in/mgo.v2"
-	"time"
-	"gopkg.in/mgo.v2/bson"
+	"context"
 	"github.com/go2s/o2s/o2x"
+	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/bson/primitive"
+	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"github.com/mongodb/mongo-go-driver/x/bsonx"
+	"gopkg.in/oauth2.v3"
 )
 
 // MgoTokenStore MongoDB storage for OAuth 2.0
 type MgoTokenStore struct {
 	db         string
 	collection string
-	session    *mgo.Session
+	client     *mongo.Client
 }
 
 // NewTokenStore create a token store instance based on mongodb
-func NewTokenStore(session *mgo.Session, db string,
+func NewTokenStore(client *mongo.Client, db string,
 	collection string) (store oauth2.TokenStore) {
 	ts := &MgoTokenStore{
-		session:    session,
+		client:     client,
 		db:         db,
 		collection: collection,
 	}
 
-	err := ts.c(ts.collection).EnsureIndex(mgo.Index{
-		Key:         []string{"ExpiredAt"},
-		ExpireAfter: time.Second * 1,
+	option := options.Index().SetExpireAfterSeconds(1)
+	_, err := ts.c(ts.collection).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys:    bsonx.Doc{bsonx.Elem{Key: "ExpiredAt", Value: bsonx.Int32(1)}},
+		Options: option,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = ts.c(ts.collection).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys: bsonx.Doc{bsonx.Elem{Key: "UserID", Value: bsonx.Int32(1)}},
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	err = ts.c(ts.collection).EnsureIndex(mgo.Index{
-		Key: []string{"UserID"},
+	_, err = ts.c(ts.collection).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys: bsonx.Doc{bsonx.Elem{Key: "ClientId", Value: bsonx.Int32(1)}},
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	err = ts.c(ts.collection).EnsureIndex(mgo.Index{
-		Key: []string{"ClientId"},
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = ts.c(ts.collection).EnsureIndex(mgo.Index{
-		Key: []string{"Refresh"},
+	_, err = ts.c(ts.collection).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys: bsonx.Doc{bsonx.Elem{Key: "Refresh", Value: bsonx.Int32(1)}},
 	})
 	if err != nil {
 		panic(err)
@@ -60,32 +65,29 @@ func NewTokenStore(session *mgo.Session, db string,
 	return
 }
 
-func (ts *MgoTokenStore) c(name string) *mgo.Collection {
-	return ts.session.DB(ts.db).C(name)
+func (ts *MgoTokenStore) c(name string) *mongo.Collection {
+	return ts.client.Database(ts.db).Collection(name)
 }
 
-func (ts *MgoTokenStore) H(name string, handler func(c *mgo.Collection)) {
-	session := ts.session.Clone()
-	defer session.Close()
-	handler(session.DB(ts.db).C(name))
-	return
+func (ts *MgoTokenStore) H(name string, handler func(c *mongo.Collection)) {
+	handler(ts.client.Database(ts.db).Collection(name))
 }
 
 // Create create and store the new token information
 func (ts *MgoTokenStore) Create(info oauth2.TokenInfo) (err error) {
 	token := Copy(info)
-	ts.H(ts.collection, func(c *mgo.Collection) {
-		err = c.Insert(token)
+	ts.H(ts.collection, func(c *mongo.Collection) {
+		_, err = c.InsertOne(nil, token)
 	})
 	return
 }
 
 // RemoveByCode use the authorization code to delete the token information
 func (ts *MgoTokenStore) RemoveByCode(code string) (err error) {
-	ts.H(ts.collection, func(c *mgo.Collection) {
-		mgoErr := c.Remove(bson.M{"Code": code})
+	ts.H(ts.collection, func(c *mongo.Collection) {
+		_, mgoErr := c.DeleteMany(nil, bson.M{"Code": code})
 		if mgoErr != nil {
-			if mgoErr == mgo.ErrNotFound {
+			if mgoErr == mongo.ErrNoDocuments {
 				err = o2x.ErrNotFound
 				return
 			}
@@ -97,10 +99,10 @@ func (ts *MgoTokenStore) RemoveByCode(code string) (err error) {
 
 // RemoveByAccess use the access token to delete the token information
 func (ts *MgoTokenStore) RemoveByAccess(access string) (err error) {
-	ts.H(ts.collection, func(c *mgo.Collection) {
-		mgoErr := c.RemoveId(access)
+	ts.H(ts.collection, func(c *mongo.Collection) {
+		_, mgoErr := c.DeleteOne(nil, bson.M{"_id": access})
 		if mgoErr != nil {
-			if mgoErr == mgo.ErrNotFound {
+			if mgoErr == mongo.ErrNoDocuments {
 				err = o2x.ErrNotFound
 				return
 			}
@@ -112,10 +114,10 @@ func (ts *MgoTokenStore) RemoveByAccess(access string) (err error) {
 
 // RemoveByRefresh use the refresh token to delete the token information
 func (ts *MgoTokenStore) RemoveByRefresh(refresh string) (err error) {
-	ts.H(ts.collection, func(c *mgo.Collection) {
-		mgoErr := c.Remove(bson.M{"Refresh": refresh})
+	ts.H(ts.collection, func(c *mongo.Collection) {
+		_, mgoErr := c.DeleteMany(nil, bson.M{"Refresh": refresh})
 		if mgoErr != nil {
-			if mgoErr == mgo.ErrNotFound {
+			if mgoErr == mongo.ErrNoDocuments {
 				err = o2x.ErrNotFound
 				return
 			}
@@ -127,10 +129,13 @@ func (ts *MgoTokenStore) RemoveByRefresh(refresh string) (err error) {
 
 // RemoveByAccount remove exists token info by userID and clientID
 func (ts *MgoTokenStore) RemoveByAccount(userID string, clientID string) (err error) {
-	ts.H(ts.collection, func(c *mgo.Collection) {
-		err = c.Remove(bson.M{"UserID": userID, "ClientId": clientID})
-		if err == nil && bson.IsObjectIdHex(userID) {
-			err = c.Remove(bson.M{"UserID": bson.ObjectIdHex(userID), "ClientId": clientID})
+	ts.H(ts.collection, func(c *mongo.Collection) {
+		res, err := c.DeleteMany(nil, bson.M{"UserID": userID, "ClientId": clientID})
+		if err == nil && res.DeletedCount == 0 {
+			objectID, err := primitive.ObjectIDFromHex(userID)
+			if err == nil {
+				_, err = c.DeleteMany(nil, bson.M{"UserID": objectID, "ClientId": clientID})
+			}
 		}
 	})
 	return
@@ -138,11 +143,11 @@ func (ts *MgoTokenStore) RemoveByAccount(userID string, clientID string) (err er
 
 // GetByField use field value for token information data
 func (ts *MgoTokenStore) GetByBson(m bson.M) (ti oauth2.TokenInfo, err error) {
-	ts.H(ts.collection, func(c *mgo.Collection) {
+	ts.H(ts.collection, func(c *mongo.Collection) {
 		token := &TokenData{}
-		mgoErr := c.Find(m).One(token)
+		mgoErr := c.FindOne(nil, m).Decode(token)
 		if mgoErr != nil {
-			if mgoErr == mgo.ErrNotFound {
+			if mgoErr == mongo.ErrNoDocuments {
 				err = o2x.ErrNotFound
 				return
 			}
@@ -181,8 +186,11 @@ func (ts *MgoTokenStore) GetByRefresh(refresh string) (ti oauth2.TokenInfo, err 
 // GetByAccount get the exists token info by userID and clientID
 func (ts *MgoTokenStore) GetByAccount(userID string, clientID string) (ti oauth2.TokenInfo, err error) {
 	ti, err = ts.GetByBson(bson.M{"UserID": userID, "ClientId": clientID})
-	if err == nil && ti == nil && bson.IsObjectIdHex(userID) {
-		ti, err = ts.GetByBson(bson.M{"UserID": bson.ObjectIdHex(userID), "ClientId": clientID})
+	if err == nil && ti == nil {
+		objectID, err := primitive.ObjectIDFromHex(userID)
+		if err != nil {
+			ti, err = ts.GetByBson(bson.M{"UserID": objectID, "ClientId": clientID})
+		}
 	}
 	return
 }

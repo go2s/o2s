@@ -18,4 +18,4 @@ const (
 	mgoPoolLimit = 10
 )
 
-var mgoAddrs = []string{"127.0.0.1:27017"}
+var mgoAddrs = "mongodb://127.0.0.1:27017"

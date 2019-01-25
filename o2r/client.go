@@ -1,4 +1,4 @@
-// ouath2 client storage based on redis
+// Oauth2 client storage based on redis
 // authors: wongoo
 
 package o2r

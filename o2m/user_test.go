@@ -5,11 +5,10 @@
 package o2m
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/mgo.v2/bson"
 	"github.com/go2s/o2s/o2x"
-	"fmt"
+	"github.com/mongodb/mongo-go-driver/bson/primitive"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 const (
@@ -19,37 +18,37 @@ const (
 	mgoPoolLimit = 10
 )
 
-var mgoAddrs = []string{"127.0.0.1:27017"}
+var mgoAddress = "mongodb://127.0.0.1:27017"
 
 func TestMgoUserStore(t *testing.T) {
 	mgoCfg := MongoConfig{
-		Addrs:     mgoAddrs,
+		Address:   mgoAddress,
 		Database:  mgoDatabase,
 		Username:  mgoUsername,
 		Password:  mgoPassword,
 		PoolLimit: mgoPoolLimit,
 	}
 
-	mgoSession := NewMongoSession(&mgoCfg)
+	mgoClient := NewMongoClient(&mgoCfg)
 
 	cfg := DefaultMgoUserCfg()
 
-	us := NewUserStore(mgoSession, mgoDatabase, "user", cfg)
+	us := NewUserStore(mgoClient, mgoDatabase, "user", cfg)
 
-	id := "5ae6b2005946fa106132365c"
+	id := "5c4aa10d97deb33b2a17633a"
+	pass := "123456"
 	mobile1 := "13344556677"
 	mobile2 := "13344556688"
 
-	fmt.Println("user id:", id)
-
-	pass := "123456"
+	us.Remove(id)
 	user, err := us.Find(id)
-	if err != nil && err.Error() != "not found" {
-		assert.Fail(t, err.Error())
-	}
+	assert.True(t, err != nil)
+	assert.Equal(t, "not found", err.Error())
+
 	if user == nil {
+		objectID, _ := primitive.ObjectIDFromHex(id)
 		user = &o2x.SimpleUser{
-			UserID: bson.ObjectIdHex(id),
+			UserID: objectID,
 			Mobile: mobile1,
 			Scopes: make(map[string]string),
 		}
@@ -61,6 +60,11 @@ func TestMgoUserStore(t *testing.T) {
 	}
 
 	user, err = us.Find(id)
+	if err != nil {
+		t.Error(err)
+		us.Remove(id)
+		t.FailNow()
+	}
 	assert.Equal(t, "read", user.GetScopes()["c1"])
 
 	//-------------------------------add user with duplicated mobile
@@ -70,7 +74,6 @@ func TestMgoUserStore(t *testing.T) {
 		Mobile: mobile1,
 	}
 	err = us.Save(user2)
-	fmt.Println(err)
 	if err == nil {
 		assert.Fail(t, "should throw mobile duplicated error")
 	}
@@ -81,6 +84,7 @@ func TestMgoUserStore(t *testing.T) {
 		Mobile: mobile2,
 	}
 	err = us.Save(user3)
+	assert.Nil(t, err)
 	if err != nil {
 		assert.Fail(t, err.Error())
 	}

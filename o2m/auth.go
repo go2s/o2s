@@ -5,14 +5,16 @@
 package o2m
 
 import (
-	"strings"
-	"gopkg.in/mgo.v2"
+	"context"
 	"github.com/go2s/o2s/o2x"
+	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo"
+	"strings"
 )
 
 const (
-	DefaultOuath2AuthDb         = "oauth2"
-	DefaultOuath2AuthCollection = "auth"
+	DefaultOauth2AuthDb         = "oauth2"
+	DefaultOauth2AuthCollection = "auth"
 	idSplit                     = "__"
 )
 
@@ -75,21 +77,21 @@ func (au *MgoAuth) Contains(scope string) bool {
 }
 
 type MgoAuthStore struct {
-	session    *mgo.Session
+	client     *mongo.Client
 	db         string
 	collection string
 }
 
-func NewAuthStore(session *mgo.Session, db string, collection string) (store *MgoAuthStore) {
-	if session == nil {
-		panic("session cannot be nil")
+func NewAuthStore(client *mongo.Client, db string, collection string) (store *MgoAuthStore) {
+	if client == nil {
+		panic("client cannot be nil")
 	}
-	store = &MgoAuthStore{session: session, db: db, collection: collection}
+	store = &MgoAuthStore{client: client, db: db, collection: collection}
 	if store.db == "" {
-		store.db = DefaultOuath2AuthDb
+		store.db = DefaultOauth2AuthDb
 	}
 	if store.collection == "" {
-		store.collection = DefaultOuath2AuthCollection
+		store.collection = DefaultOauth2AuthCollection
 	}
 
 	return
@@ -103,20 +105,16 @@ func (s *MgoAuthStore) Save(auth o2x.Auth) error {
 	}
 	mau.UpdateAuthID()
 
-	session := s.session.Clone()
-	defer session.Close()
-
-	c := session.DB(s.db).C(s.collection)
-	return c.Insert(mau)
+	c := s.client.Database(s.db).Collection(s.collection)
+	_, err := c.InsertOne(context.TODO(), mau)
+	return err
 }
 
 // find auth by clientID and userID
 func (s *MgoAuthStore) Find(clientId string, userID string) (auth o2x.Auth, err error) {
-	session := s.session.Clone()
-	defer session.Close()
-
 	auth = &MgoAuth{}
-	err = session.DB(s.db).C(s.collection).FindId(buildAuthID(clientId, userID)).One(auth)
+	filter := bson.M{"_id": buildAuthID(clientId, userID)}
+	err = s.client.Database(s.db).Collection(s.collection).FindOne(context.TODO(), filter).Decode(auth)
 	if err != nil {
 		return nil, err
 	}
