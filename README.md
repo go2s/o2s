@@ -1,22 +1,13 @@
 # Golang Oauth2 Server
 
 ## Feature:
-- support memory,redis,mongodb token&client storage
-- support memory,redis session
+- storage support: memory,redis,mongodb 
+- session support: memory,redis 
 
 ## Run Oauth2 Server:
 
 ```
-go get -u -v gopkg.in/oauth2.v3/errors
-go get -u -v github.com/satori/go.uuid
-go get -u -v github.com/codegangsta/inject
-
-go get -u -v github.com/go2s/o2r
-go get -u -v github.com/go2s/o2m
-
-cd http
-
-go run server.go
+go run http/server.go
 ```
 
 ## API Samples
