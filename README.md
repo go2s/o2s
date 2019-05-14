@@ -7,7 +7,7 @@
 ## Run Oauth2 Server:
 
 ```
-go run http/server.go
+go run examples/http/server.go
 ```
 
 ## API Samples
