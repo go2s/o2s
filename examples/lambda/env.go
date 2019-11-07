@@ -1,5 +1,3 @@
-//+build dev
-
 // authors: wangoo
 // created: 2018-05-30
 // dev env
@@ -18,4 +16,4 @@ const (
 	mgoPoolLimit = 10
 )
 
-var mgoAddrs = "mongodb://127.0.0.1:27017"
+var mgoHost = "127.0.0.1:27017"

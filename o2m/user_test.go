@@ -19,11 +19,11 @@ const (
 	mgoPoolLimit = 10
 )
 
-var mgoAddress = "mongodb://127.0.0.1:27017"
+var mgoHost = "127.0.0.1:27017"
 
 func TestMgoUserStore(t *testing.T) {
 	mgoCfg := MongoConfig{
-		Hosts:     mgoAddress,
+		Hosts:     []string{mgoHost},
 		Database:  mgoDatabase,
 		Username:  mgoUsername,
 		Password:  mgoPassword,

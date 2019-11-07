@@ -52,7 +52,7 @@ func main() {
 	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
 
 	mgoCfg = o2m.MongoConfig{
-		Hosts:     []string{mgoAddrs},
+		Hosts:     []string{mgoHost},
 		Database:  mgoDatabase,
 		Username:  mgoUsername,
 		Password:  mgoPassword,

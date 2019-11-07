@@ -6,7 +6,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.4.0
-	github.com/go-redis/redis v6.15.1+incompatible
+	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/go-session/redis v3.0.1+incompatible
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/go-stack/stack v1.8.0 // indirect
@@ -19,7 +19,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
 	github.com/stretchr/testify v1.4.0
-	github.com/ugorji/go v1.1.7 // indirect
+	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.1.3
