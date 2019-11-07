@@ -100,10 +100,15 @@ func TestMgoUserStore(t *testing.T) {
 	assert.False(t, updateUser.Match("password"))
 
 	err = us.UpdateScope(id, "c1", "manage,admin")
+	if err != nil {
+		assert.Fail(t, err.Error())
+	}
+
 	err = us.UpdateScope(id, "c2", "operate,view")
 	if err != nil {
 		assert.Fail(t, err.Error())
 	}
+
 	user, err = us.Find(id)
 	assert.Equal(t, "manage,admin", user.GetScopes()["c1"])
 	assert.Equal(t, "operate,view", user.GetScopes()["c2"])

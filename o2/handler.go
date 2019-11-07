@@ -54,7 +54,6 @@ func HandleProcessor(processor func(w http.ResponseWriter, r *http.Request) erro
 			return
 		}
 		HttpResponse(w, defaultSuccessResponse(), http.StatusOK)
-		return
 	}
 }
 

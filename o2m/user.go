@@ -177,8 +177,8 @@ func (us *MgoUserStore) Remove(id interface{}) (err error) {
 	if mgoErr == nil && res.DeletedCount == 0 {
 		// try to find using object id
 		if sid, ok := id.(string); ok {
-			objectID, err := primitive.ObjectIDFromHex(sid)
-			if err == nil {
+			objectID, objErr := primitive.ObjectIDFromHex(sid)
+			if objErr == nil {
 				_, mgoErr = c.DeleteOne(nil, bson.M{"_id": objectID})
 			}
 		}
@@ -204,8 +204,8 @@ func (us *MgoUserStore) Find(id interface{}) (u o2x.User, err error) {
 	if mgoErr != nil && mgoErr == mongo.ErrNoDocuments {
 		// try to find using object id
 		if sid, ok := id.(string); ok {
-			objectID, err := primitive.ObjectIDFromHex(sid)
-			if err == nil {
+			objectID, objErr := primitive.ObjectIDFromHex(sid)
+			if objErr == nil {
 				mgoErr = c.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(user)
 			}
 		}
@@ -229,7 +229,7 @@ func (us *MgoUserStore) Find(id interface{}) (u o2x.User, err error) {
 		addUserCache(u)
 	}
 
-	return
+	return u, nil
 }
 
 func (us *MgoUserStore) FindMobile(mobile string) (u o2x.User, err error) {

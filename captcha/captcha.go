@@ -79,12 +79,7 @@ func SendCaptcha(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	err = oauth2CaptchaStore.Save(mobile, captcha)
-	if err != nil {
-		return
-	}
-
-	return
+	return oauth2CaptchaStore.Save(mobile, captcha)
 }
 
 // validate captcha token request

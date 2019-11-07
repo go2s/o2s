@@ -88,12 +88,7 @@ func AddUserProcessor(w http.ResponseWriter, r *http.Request) (err error) {
 	user.SetRawPassword(password)
 
 	glog.Infof("client %v add user %v", clientID, username)
-	err = oauth2Svr.userStore.Save(user)
-	if err != nil {
-		return
-	}
-
-	return
+	return oauth2Svr.userStore.Save(user)
 }
 
 // remove user processor

@@ -20,13 +20,14 @@ type MongoConfig struct {
 
 //NewMongoClient new mongo client
 func NewMongoClient(cfg *MongoConfig) *mongo.Client {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	option := options.Client().SetAuth(options.Credential{Username: cfg.Username, Password: cfg.Password, AuthSource: cfg.Database})
 	option.SetConnectTimeout(time.Second * 5)
 	option.SetMaxPoolSize(cfg.PoolLimit)
 	option.SetHosts(cfg.Hosts)
 
 	client, err := mongo.Connect(ctx, option)
+	defer cancel()
 
 	if err != nil {
 		glog.Infof("connect mongodb error: %v", err.Error())

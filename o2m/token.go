@@ -79,7 +79,7 @@ func (ts *MgoTokenStore) H(name string, handler func(c *mongo.Collection)) {
 func (ts *MgoTokenStore) Create(info oauth2.TokenInfo) (err error) {
 	token := Copy(info)
 	ts.H(ts.collection, func(c *mongo.Collection) {
-		_, err = c.InsertOne(nil, token)
+		_, err = c.InsertOne(context.TODO(), token)
 	})
 	return
 }
@@ -87,7 +87,7 @@ func (ts *MgoTokenStore) Create(info oauth2.TokenInfo) (err error) {
 // RemoveByCode use the authorization code to delete the token information
 func (ts *MgoTokenStore) RemoveByCode(code string) (err error) {
 	ts.H(ts.collection, func(c *mongo.Collection) {
-		_, mgoErr := c.DeleteMany(nil, bson.M{"Code": code})
+		_, mgoErr := c.DeleteMany(context.TODO(), bson.M{"Code": code})
 		if mgoErr != nil {
 			if mgoErr == mongo.ErrNoDocuments {
 				err = o2x.ErrNotFound
@@ -102,7 +102,7 @@ func (ts *MgoTokenStore) RemoveByCode(code string) (err error) {
 // RemoveByAccess use the access token to delete the token information
 func (ts *MgoTokenStore) RemoveByAccess(access string) (err error) {
 	ts.H(ts.collection, func(c *mongo.Collection) {
-		_, mgoErr := c.DeleteOne(nil, bson.M{"_id": access})
+		_, mgoErr := c.DeleteOne(context.TODO(), bson.M{"_id": access})
 		if mgoErr != nil {
 			if mgoErr == mongo.ErrNoDocuments {
 				err = o2x.ErrNotFound
