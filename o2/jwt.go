@@ -1,8 +1,8 @@
 package o2
 
 import (
-	"gopkg.in/oauth2.v3/errors"
 	"github.com/go2s/o2s/jwtex"
+	"gopkg.in/oauth2.v3/errors"
 )
 
 //ParseJWTAccessToken valid jwt access token

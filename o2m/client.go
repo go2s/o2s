@@ -5,12 +5,13 @@ package o2m
 
 import (
 	"context"
-	"github.com/go2s/o2s/o2x"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/patrickmn/go-cache"
-	"gopkg.in/oauth2.v3"
 	"time"
+
+	"github.com/go2s/o2s/o2x"
+	"github.com/patrickmn/go-cache"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"gopkg.in/oauth2.v3"
 )
 
 const (

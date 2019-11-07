@@ -5,8 +5,9 @@
 package o2m
 
 import (
-	"gopkg.in/oauth2.v3"
 	"time"
+
+	"gopkg.in/oauth2.v3"
 )
 
 type TokenData struct {

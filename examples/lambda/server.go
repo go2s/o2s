@@ -6,12 +6,13 @@ package main
 
 import (
 	"flag"
-	"github.com/mongodb/mongo-go-driver/mongo"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-redis/redis"
 	"github.com/go2s/o2s/captcha"
@@ -51,7 +52,7 @@ func main() {
 	flag.Set("logtostderr", "true") // Log to stderr only, instead of file.
 
 	mgoCfg = o2m.MongoConfig{
-		Address:   mgoAddrs,
+		Hosts:     []string{mgoAddrs},
 		Database:  mgoDatabase,
 		Username:  mgoUsername,
 		Password:  mgoPassword,

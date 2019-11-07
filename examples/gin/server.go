@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/go2s/o2s/o2r"
 	"github.com/go2s/o2s/captcha"
 	"github.com/go2s/o2s/engine"
 	"github.com/go2s/o2s/o2"
+	"github.com/go2s/o2s/o2r"
 	"github.com/go2s/o2s/o2x"
 	"github.com/golang/glog"
 )

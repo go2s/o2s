@@ -7,16 +7,17 @@ package o2m
 import (
 	"context"
 	"fmt"
-	"github.com/go2s/o2s/o2x"
-	"github.com/golang/glog"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/bson/primitive"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
-	"github.com/mongodb/mongo-go-driver/x/bsonx"
-	"github.com/patrickmn/go-cache"
 	"reflect"
 	"time"
+
+	"github.com/go2s/o2s/o2x"
+	"github.com/golang/glog"
+	"github.com/patrickmn/go-cache"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
 var (
@@ -117,7 +118,7 @@ func (us *MgoUserStore) lockUserMobile(userId, mobile string) (err error) {
 		Id:     userId,
 		Mobile: mobile,
 	}
-	count, err := c.Count(context.TODO(), userMobile)
+	count, err := c.CountDocuments(context.TODO(), userMobile)
 	if count > 0 || err != nil {
 		return
 	}

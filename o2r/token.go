@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"gopkg.in/oauth2.v3/models"
 	"github.com/go-redis/redis"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"gopkg.in/oauth2.v3"
+	"gopkg.in/oauth2.v3/models"
 )
 
 // RedisTokenStore redis token store

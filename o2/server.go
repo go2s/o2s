@@ -8,14 +8,14 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"gopkg.in/oauth2.v3/manage"
-	"gopkg.in/oauth2.v3/server"
 	"github.com/go2s/o2s/jwtex"
 	"gopkg.in/oauth2.v3"
+	"gopkg.in/oauth2.v3/manage"
+	"gopkg.in/oauth2.v3/server"
 
-	"gopkg.in/oauth2.v3/errors"
 	"github.com/go2s/o2s/o2x"
 	"github.com/golang/glog"
+	"gopkg.in/oauth2.v3/errors"
 )
 
 //Oauth2Server oauth2 server

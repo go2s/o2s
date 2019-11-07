@@ -5,10 +5,11 @@
 package o2m
 
 import (
-	"github.com/go2s/o2s/o2x"
-	"github.com/mongodb/mongo-go-driver/bson/primitive"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/go2s/o2s/o2x"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const (
@@ -22,7 +23,7 @@ var mgoAddress = "mongodb://127.0.0.1:27017"
 
 func TestMgoUserStore(t *testing.T) {
 	mgoCfg := MongoConfig{
-		Address:   mgoAddress,
+		Hosts:     mgoAddress,
 		Database:  mgoDatabase,
 		Username:  mgoUsername,
 		Password:  mgoPassword,

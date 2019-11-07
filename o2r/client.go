@@ -6,9 +6,9 @@ package o2r
 import (
 	"encoding/json"
 
-	"gopkg.in/oauth2.v3/models"
 	"github.com/go-redis/redis"
 	"gopkg.in/oauth2.v3"
+	"gopkg.in/oauth2.v3/models"
 )
 
 const RedisKeyOauth2Client = "oauth2_client"

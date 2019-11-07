@@ -6,8 +6,8 @@ import (
 
 	"gopkg.in/oauth2.v3/models"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/go-redis/redis"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestTokenStore(t *testing.T) {

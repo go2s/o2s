@@ -5,11 +5,11 @@
 package o2
 
 import (
-	"net/http"
-	"fmt"
-	"net/url"
 	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 )
 
 func authQuery(r *http.Request) (q string) {
@@ -115,7 +115,7 @@ func password(r *http.Request) string {
 	return r.FormValue("password")
 }
 
-func anyNil(args ... string) bool {
+func anyNil(args ...string) bool {
 	for _, arg := range args {
 		if arg == "" {
 			return true

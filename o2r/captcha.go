@@ -4,8 +4,9 @@
 package o2r
 
 import (
-	"github.com/go-redis/redis"
 	"time"
+
+	"github.com/go-redis/redis"
 )
 
 const (

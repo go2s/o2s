@@ -6,10 +6,11 @@ package o2m
 
 import (
 	"context"
-	"github.com/go2s/o2s/o2x"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
 	"strings"
+
+	"github.com/go2s/o2s/o2x"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (

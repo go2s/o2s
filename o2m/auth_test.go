@@ -6,6 +6,7 @@ package o2m
 
 import (
 	"testing"
+
 	"github.com/stretchr/testify/assert"
 )
 

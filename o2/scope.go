@@ -4,8 +4,9 @@
 package o2
 
 import (
-	"github.com/go2s/o2s/o2x"
 	"net/http"
+
+	"github.com/go2s/o2s/o2x"
 )
 
 // RefreshingScopeHandler check the scope of the refreshing token
